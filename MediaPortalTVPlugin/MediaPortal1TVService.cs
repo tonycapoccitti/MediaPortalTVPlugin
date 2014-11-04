@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 using MediaBrowser.Controller.LiveTv;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Serialization;
 using MediaPortalTVPlugin.Utilities;
 using MediaBrowser.Model.Logging;
+using MediaBrowser.Controller.Channels;
 
 namespace MediaPortalTVPlugin
 {
@@ -23,49 +25,49 @@ namespace MediaPortalTVPlugin
             // _tasWrapper.ValidateConnectivity();
         }
 
-        public Task CancelSeriesTimerAsync(string timerId, System.Threading.CancellationToken cancellationToken)
+        public Task CancelSeriesTimerAsync(string timerId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task CancelTimerAsync(string timerId, System.Threading.CancellationToken cancellationToken)
+        public Task CancelTimerAsync(string timerId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task CloseLiveStream(string id, System.Threading.CancellationToken cancellationToken)
+        public Task CloseLiveStream(string id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task CreateSeriesTimerAsync(SeriesTimerInfo info, System.Threading.CancellationToken cancellationToken)
+        public Task CreateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task CreateTimerAsync(TimerInfo info, System.Threading.CancellationToken cancellationToken)
+        public Task CreateTimerAsync(TimerInfo info, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
         public event EventHandler DataSourceChanged;
 
-        public Task DeleteRecordingAsync(string recordingId, System.Threading.CancellationToken cancellationToken)
+        public Task DeleteRecordingAsync(string recordingId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task<StreamResponseInfo> GetChannelImageAsync(string channelId, System.Threading.CancellationToken cancellationToken)
+        public Task<StreamResponseInfo> GetChannelImageAsync(string channelId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<StreamResponseInfo>(null);
         }
 
-        public Task<MediaBrowser.Controller.Channels.ChannelMediaInfo> GetChannelStream(string channelId, System.Threading.CancellationToken cancellationToken)
+        public Task<ChannelMediaInfo> GetChannelStream(string channelId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<ChannelMediaInfo>(null);
         }
 
-        public async Task<IEnumerable<ChannelInfo>> GetChannelsAsync(System.Threading.CancellationToken cancellationToken)
+        public async Task<IEnumerable<ChannelInfo>> GetChannelsAsync(CancellationToken cancellationToken)
         {
             //var result = await _tasWrapper.GetChannels(cancellationToken).ConfigureAwait(false);
             //_logger.Info("TAS Result: {0}", String.Concat(",", result));
@@ -77,54 +79,56 @@ namespace MediaPortalTVPlugin
             };
         }
 
-        public Task<SeriesTimerInfo> GetNewTimerDefaultsAsync(System.Threading.CancellationToken cancellationToken, ProgramInfo program = null)
+        public Task<SeriesTimerInfo> GetNewTimerDefaultsAsync(CancellationToken cancellationToken, ProgramInfo program = null)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<SeriesTimerInfo>(null);
         }
 
-        public Task<StreamResponseInfo> GetProgramImageAsync(string programId, string channelId, System.Threading.CancellationToken cancellationToken)
+        public Task<StreamResponseInfo> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<StreamResponseInfo>(null);
+
         }
 
-        public Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, System.Threading.CancellationToken cancellationToken)
+        public Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IEnumerable<ProgramInfo>>(new List<ProgramInfo>());
         }
 
-        public Task<StreamResponseInfo> GetRecordingImageAsync(string recordingId, System.Threading.CancellationToken cancellationToken)
+        public Task<StreamResponseInfo> GetRecordingImageAsync(string recordingId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<StreamResponseInfo>(null);
         }
 
-        public Task<MediaBrowser.Controller.Channels.ChannelMediaInfo> GetRecordingStream(string recordingId, System.Threading.CancellationToken cancellationToken)
+        public Task<ChannelMediaInfo> GetRecordingStream(string recordingId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<ChannelMediaInfo>(null);
         }
 
-        public Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(System.Threading.CancellationToken cancellationToken)
+        public Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IEnumerable<RecordingInfo>>(new List<RecordingInfo>());
         }
 
-        public Task<IEnumerable<SeriesTimerInfo>> GetSeriesTimersAsync(System.Threading.CancellationToken cancellationToken)
+        public Task<IEnumerable<SeriesTimerInfo>> GetSeriesTimersAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IEnumerable<SeriesTimerInfo>>(new List<SeriesTimerInfo>());
         }
 
-        public Task<LiveTvServiceStatusInfo> GetStatusInfoAsync(System.Threading.CancellationToken cancellationToken)
+        public Task<LiveTvServiceStatusInfo> GetStatusInfoAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<LiveTvServiceStatusInfo>(null);
         }
 
-        public Task<IEnumerable<TimerInfo>> GetTimersAsync(System.Threading.CancellationToken cancellationToken)
+        public Task<IEnumerable<TimerInfo>> GetTimersAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IEnumerable<TimerInfo>>(new List<TimerInfo>());
+
         }
 
         public string HomePageUrl
         {
-            get { throw new NotImplementedException(); }
+            get { return "http://www.mediaportal.com/"; }
         }
 
         public string Name
@@ -132,26 +136,26 @@ namespace MediaPortalTVPlugin
             get { return "Media Portal V1 Live TV Service"; }
         }
 
-        public Task RecordLiveStream(string id, System.Threading.CancellationToken cancellationToken)
+        public Task RecordLiveStream(string id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
         public event EventHandler<RecordingStatusChangedEventArgs> RecordingStatusChanged;
 
-        public Task ResetTuner(string id, System.Threading.CancellationToken cancellationToken)
+        public Task ResetTuner(string id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task UpdateSeriesTimerAsync(SeriesTimerInfo info, System.Threading.CancellationToken cancellationToken)
+        public Task UpdateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
 
-        public Task UpdateTimerAsync(TimerInfo info, System.Threading.CancellationToken cancellationToken)
+        public Task UpdateTimerAsync(TimerInfo info, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
         }
     }
 }
