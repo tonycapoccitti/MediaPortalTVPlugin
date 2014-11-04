@@ -62,6 +62,7 @@
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Configuration\MyConfigurationPage.cs" />
     <Compile Include="Entities\MyPluginCollectionFolder.cs" />
+    <Compile Include="Interfaces\IPluginLogger.cs" />
     <Compile Include="MediaPortal1TVService.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,9 +75,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "%AppData%\MediaBrowser-Server\plugins" /y</PostBuildEvent>
