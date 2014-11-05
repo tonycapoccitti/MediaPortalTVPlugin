@@ -66,6 +66,9 @@
     <Compile Include="MediaPortal1TVService.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Responses\GetProgramsForChannelResponse.cs" />
+    <Compile Include="Responses\GetChannelsResponse.cs" />
+    <Compile Include="Responses\ServiceDescriptionResponse.cs" />
     <Compile Include="ServerEntryPoint.cs" />
     <Compile Include="Utilities\TasProxy.cs" />
   </ItemGroup>

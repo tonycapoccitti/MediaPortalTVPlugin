@@ -17,12 +17,61 @@ namespace MediaPortalTVPlugin
     public class MediaPortal1TVService : ILiveTvService
     {
         ILogger _logger;
-        TasProxy _tasWrapper;
+        IHttpClient _httpClient;
+        IJsonSerializer _jsonSerialiser;
 
-        public MediaPortal1TVService(IHttpClient httpClient, IJsonSerializer jsonSerialiser)
+        public MediaPortal1TVService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger)
         {
-            _tasWrapper = new TasProxy(httpClient, jsonSerialiser, Plugin.Logger);
-            // _tasWrapper.ValidateConnectivity();
+            _httpClient = httpClient;
+            _jsonSerialiser = jsonSerialiser;
+            _logger = logger;
+        }
+
+        private String GetBaseUrl()
+        {
+            var configuration = Plugin.Instance.Configuration;
+            return String.Format("http://{0}:{1}/MPExtended/", configuration.ApiIpAddress, configuration.ApiPortNumber);
+        }
+
+        private HttpRequestOptions GenerateTasRequest(String action, params object[] args)
+        {
+            var configuration = Plugin.Instance.Configuration;
+            var baseUrl = String.Concat(GetBaseUrl(), "TVAccessService/json/");
+
+            var request = new HttpRequestOptions()
+            {
+                Url = String.Concat(baseUrl, String.Format(action, args)),
+                RequestContentType = "application/json",
+                LogErrorResponseBody = true,
+                LogRequest = true,
+            };
+
+            if (configuration.IsAuthenticated)
+            {
+                // Add headers?
+            }
+
+            return request;
+        }
+
+        private HttpRequestOptions GenerateWssRequest(String action, params object[] args)
+        {
+            var configuration = Plugin.Instance.Configuration;
+            var baseUrl = String.Format("http://{0}:{1}/MPExtended/StreamingService/stream/", configuration.ApiIpAddress, configuration.ApiPortNumber);
+            var request = new HttpRequestOptions()
+            {
+                Url = String.Concat(baseUrl, String.Format(action, args)),
+                RequestContentType = "application/json",
+                LogErrorResponseBody = true,
+                LogRequest = true,
+            };
+
+            if (configuration.IsAuthenticated)
+            {
+                // Add headers?
+            }
+
+            return request;
         }
 
         public Task CancelSeriesTimerAsync(string timerId, CancellationToken cancellationToken)
@@ -69,14 +118,25 @@ namespace MediaPortalTVPlugin
 
         public async Task<IEnumerable<ChannelInfo>> GetChannelsAsync(CancellationToken cancellationToken)
         {
-            //var result = await _tasWrapper.GetChannels(cancellationToken).ConfigureAwait(false);
-            //_logger.Info("TAS Result: {0}", String.Concat(",", result));
+            var options = GenerateTasRequest("GetChannelsBasic");
 
-            return new ChannelInfo[] {
-                new ChannelInfo(){ Id = "1", Name = "BBC 1", ChannelType = MediaBrowser.Model.LiveTv.ChannelType.TV, Number = "1" },
-                new ChannelInfo(){ Id = "2", Name = "BBC 2", ChannelType = MediaBrowser.Model.LiveTv.ChannelType.TV, Number = "2" },
-                new ChannelInfo(){ Id = "3", Name = "BBC 3", ChannelType = MediaBrowser.Model.LiveTv.ChannelType.TV, Number = "3" },
-            };
+            List<Responses.Channel> response;
+            using (var stream =  await _httpClient.Get(options))
+            {
+                response = new Responses.GetChannelsResponse(stream, _jsonSerialiser).Result;
+            }
+
+            return response.Select(c => new ChannelInfo()
+            {
+                Id = c.Id.ToString(),
+                ChannelType = c.IsTv ? MediaBrowser.Model.LiveTv.ChannelType.TV : MediaBrowser.Model.LiveTv.ChannelType.Radio,
+                Name = c.Title,
+                Number = c.Id.ToString(),
+                ImageUrl = String.Format(
+                    "{0}StreamingService/stream/GetArtworkResized?id={1}&artworktype={2}&offset=0&mediatype={3}&maxWidth=160&maxHeight=160",
+                    GetBaseUrl(),
+                    c.Id, 5, 12)
+            });
         }
 
         public Task<SeriesTimerInfo> GetNewTimerDefaultsAsync(CancellationToken cancellationToken, ProgramInfo program = null)
@@ -87,12 +147,37 @@ namespace MediaPortalTVPlugin
         public Task<StreamResponseInfo> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
         {
             return Task.FromResult<StreamResponseInfo>(null);
-
         }
 
         public Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
         {
-            return Task.FromResult<IEnumerable<ProgramInfo>>(new List<ProgramInfo>());
+            // 2014-11-01T23:59:59
+            var options = GenerateTasRequest(
+                "GetProgramsBasicForChannel?channelId={0}&starttime={1}&endtime={2}",
+                channelId,
+                startDateUtc.ToString("s"),
+                endDateUtc.ToString("s"));
+
+            List<Responses.Program> response;
+            using (var stream = _httpClient.Get(options).Result)
+            {
+                response = new Responses.GetProgramsForChannelResponse(stream, _jsonSerialiser).Result;
+            }
+
+            var programs = response.Select(p => new ProgramInfo()
+            {
+                ChannelId = channelId,
+                StartDate = p.StartTime,
+                EndDate = p.EndTime,
+                // EpisodeTitle = p.Description,
+                Id = p.Id.ToString(),
+                IsMovie = false,
+                Name = p.Title,
+                Overview = p.Description,
+                Genres = new List<string> { "My Category" }
+            });
+
+            return Task.FromResult<IEnumerable<ProgramInfo>>(programs);
         }
 
         public Task<StreamResponseInfo> GetRecordingImageAsync(string recordingId, CancellationToken cancellationToken)
@@ -117,7 +202,41 @@ namespace MediaPortalTVPlugin
 
         public Task<LiveTvServiceStatusInfo> GetStatusInfoAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult<LiveTvServiceStatusInfo>(null);
+            var options = GenerateTasRequest("GetServiceDescription");
+
+            LiveTvServiceStatusInfo result;
+            try
+            {
+                Responses.ServiceDescription response;
+                using (var stream = _httpClient.Get(options).Result)
+                {
+                    response = new Responses.ServiceDescriptionResponse(stream, _jsonSerialiser).Result;
+                }
+
+                result = new LiveTvServiceStatusInfo()
+                {
+                    HasUpdateAvailable = false,
+                    Status = MediaBrowser.Model.LiveTv.LiveTvServiceStatus.Ok,
+                    StatusMessage = String.Format("MPExtended Service Version: {0} - API Version : {1}", response.ServiceVersion, response.ApiVersion),
+                    Tuners = new List<LiveTvTunerInfo>(),
+                    Version = "1.0"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.ErrorException(ex.Message, ex);
+
+                result = new LiveTvServiceStatusInfo()
+                {
+                    HasUpdateAvailable = false,
+                    Status = MediaBrowser.Model.LiveTv.LiveTvServiceStatus.Unavailable,
+                    StatusMessage = "Unable to establish a connection with MediaPortal API - check your settings",
+                    Tuners = new List<LiveTvTunerInfo>(),
+                    Version = "1.0"
+                };
+            }
+
+            return Task.FromResult<LiveTvServiceStatusInfo>(result);
         }
 
         public Task<IEnumerable<TimerInfo>> GetTimersAsync(CancellationToken cancellationToken)
