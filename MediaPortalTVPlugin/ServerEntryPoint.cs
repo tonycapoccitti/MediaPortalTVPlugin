@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.ScheduledTasks;
 using MediaBrowser.Common.Security;
@@ -7,6 +6,7 @@ using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Plugins;
 using MediaPortalTVPlugin.Configuration;
 using MediaBrowser.Model.Logging;
+using MediaPortalTVPlugin.Helpers;
 
 namespace MediaPortalTVPlugin
 {
@@ -40,15 +40,20 @@ namespace MediaPortalTVPlugin
         /// Initializes a new instance of the <see cref="ServerEntryPoint" /> class.
         /// </summary>
         /// <param name="taskManager">The task manager.</param>
+        /// <param name="libraryManager">The library manager.</param>
         /// <param name="appPaths">The app paths.</param>
-        /// <param name="logManager"></param>
+        /// <param name="logManager">The log manager.</param>
+        /// <param name="securityManager">The security manager.</param>
         public ServerEntryPoint(ITaskManager taskManager, ILibraryManager libraryManager, 
             IApplicationPaths appPaths, ILogManager logManager, ISecurityManager securityManager)
         {
             _taskManager = taskManager;
+
             LibraryManager = libraryManager;
             PluginSecurityManager = securityManager;
-            Plugin.Logger = logManager.GetLogger(Plugin.Instance.Name);
+
+            // Inject our bespoke logger to get tailored messages
+            Plugin.Logger = new PluginLogger(logManager.GetLogger(Plugin.Instance.Name));
 
             Instance = this;
         }

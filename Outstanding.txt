@@ -1,0 +1,16 @@
+Outstandings Tasks
+
+ - Add TV Recording Images
+ - Parameterise the channel / TV images
+ - Add Combo for streaming profiles to configuration page
+ - Add defensive code to DeleteRecording to check for MPExtended >= 0.6
+ - Add processing to collect the "Series" data for a program when doing a "Get" (isolate to channel)
+ - Set the "Is" properties on the programs
+
+Suggestions to MB:
+
+ - Allow an implementation to define it's capabilities - 
+	- Can define week schedule
+
+
+ - Add a "Now" to the schedule grid

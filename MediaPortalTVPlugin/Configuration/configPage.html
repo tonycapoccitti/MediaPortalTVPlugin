@@ -29,6 +29,16 @@
                                 The port number of the MP Extended Service
                             </div>
                         </li>
+                        
+                        <li>
+                            <label for="txtLiveStreamingProfileName">
+                                Live Streaming Profile:
+                            </label>
+                            <input id="txtLiveStreamingProfileName" name="txLiveStreamingProfileName" />
+                            <div class="fieldDescription">
+                                The profile to use when streaming live TV
+                            </div>
+                        </li>
 
                         <li>
                             <button type="submit" data-theme="b">Save</button>
@@ -72,6 +82,7 @@
 
                     $('#txtApiIpAddress', page).val(config.ApiIpAddress);
                     $('#txtApiPortNumber', page).val(config.ApiPortNumber);
+                    $('#LiveStreamingProfileName', page).valueOf(config.LiveStreamingProfileName);
 
                     Dashboard.hideLoadingMsg();
                 });
@@ -87,6 +98,7 @@
 
                     config.ApiIpAddress = $('#txtApiIpAddress', form).val();
                     config.ApiPortNumber = $('#txtApiPortNumber', form).val();
+                    config.LiveStreamingProfileName = $('#LiveStreamingProfileName', form).val();
 
                     ApiClient.updatePluginConfiguration(MediaPortalTVPluginConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
                 });

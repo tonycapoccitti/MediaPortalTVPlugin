@@ -14,6 +14,7 @@ namespace MediaPortalTVPlugin.Configuration
         public PluginConfiguration()
         {
             ApiPortNumber = 4322;
+            LiveStreamingProfileName = "Direct";
         }
 
         public string ApiIpAddress { get; set; }
@@ -21,5 +22,9 @@ namespace MediaPortalTVPlugin.Configuration
         public bool IsAuthenticated { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+        public Int32 PreRecordPaddingInSecs { get; set; }
+        public Int32 PostRecordPaddingInSecs { get; set; }
+
+        public String LiveStreamingProfileName { get; set; }
     }
 }

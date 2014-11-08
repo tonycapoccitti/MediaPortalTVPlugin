@@ -3,20 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediaBrowser.Model.Logging;
 
 namespace MediaPortalTVPlugin.Interfaces
 {
     /// <summary>
-    /// Provides plugin specific implementations for logging
+    /// Provides logging methods for a plugin
     /// </summary>
-    public interface IPluginLogger
+    public interface IPluginLogger : ILogger
     {
-        /// <summary>
-        /// Logs an exception, with a message and detail
-        /// </summary>
-        /// <param name="ex"></param>
-        /// <param name="message"></param>
-        /// <param name="args"></param>
-        void LogError(Exception ex, String message, params Object[] args);
+        void Error(Exception exception, string message, params object[] paramList);
+        void Fatal(Exception exception, string message, params object[] paramList);
     }
 }
