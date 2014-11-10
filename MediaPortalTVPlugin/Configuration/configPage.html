@@ -1,14 +1,14 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>MediaPortalTVPlugin Configuration</title>
+    <title>MediaPortal</title>
 </head>
 <body>
-    <div id="MediaPortalTVPluginConfigurationPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <div data-role="page" class="page type-interior pluginConfigurationPage mediaPortalConfigurationPage">
 
         <div data-role="content">
             <div class="content-primary">
-                <form id="MediaPortalTVPluginConfigurationForm">
+                <form id="mediaPortalConfigurationForm">
 
                     <ul class="ulForm" data-role="listview">
                         <li>
@@ -29,17 +29,6 @@
                                 The port number of the MP Extended Service
                             </div>
                         </li>
-                        
-                        <li>
-                            <label for="txtLiveStreamingProfileName">
-                                Live Streaming Profile:
-                            </label>
-                            <input id="txtLiveStreamingProfileName" name="txLiveStreamingProfileName" />
-                            <div class="fieldDescription">
-                                The profile to use when streaming live TV
-                            </div>
-                        </li>
-
                         <li>
                             <button type="submit" data-theme="b">Save</button>
                             <button type="button" onclick="history.back();">Cancel</button>
@@ -52,7 +41,7 @@
 
         <script type="text/javascript">
 
-            var MediaPortalTVPluginConfigurationPage = {
+            var MediaPortalConfigurationPage = {
                 pluginUniqueId: "2c6a0219-7621-4b06-8a64-da3f7038b649",
 
                 selectDirectory: function () {
@@ -72,35 +61,33 @@
                 }
             };
 
-            $('#MediaPortalTVPluginConfigurationPage').on('pageshow', function (event) {
+            $('.mediaPortalConfigurationPage').on('pageshow', function (event) {
 
                 Dashboard.showLoadingMsg();
 
                 var page = this;
 
-                ApiClient.getPluginConfiguration(MediaPortalTVPluginConfigurationPage.pluginUniqueId).done(function (config) {
+                ApiClient.getPluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId).done(function (config) {
 
                     $('#txtApiIpAddress', page).val(config.ApiIpAddress);
                     $('#txtApiPortNumber', page).val(config.ApiPortNumber);
-                    $('#LiveStreamingProfileName', page).valueOf(config.LiveStreamingProfileName);
 
                     Dashboard.hideLoadingMsg();
                 });
             });
 
-            $('#MediaPortalTVPluginConfigurationForm').on('submit', function (e) {
+            $('.mediaPortalConfigurationPage').on('submit', function (e) {
 
                 Dashboard.showLoadingMsg();
 
                 var form = this;
 
-                ApiClient.getPluginConfiguration(MediaPortalTVPluginConfigurationPage.pluginUniqueId).done(function (config) {
+                ApiClient.getPluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId).done(function (config) {
 
                     config.ApiIpAddress = $('#txtApiIpAddress', form).val();
                     config.ApiPortNumber = $('#txtApiPortNumber', form).val();
-                    config.LiveStreamingProfileName = $('#LiveStreamingProfileName', form).val();
 
-                    ApiClient.updatePluginConfiguration(MediaPortalTVPluginConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
+                    ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
                 });
 
                 // Disable default form submission

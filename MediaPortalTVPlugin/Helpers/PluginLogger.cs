@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
 using MediaBrowser.Model.Logging;
-using MediaPortalTVPlugin.Interfaces;
+using MediaBrowser.Plugins.MediaPortal.Interfaces;
 
-namespace MediaPortalTVPlugin.Helpers
+namespace MediaBrowser.Plugins.MediaPortal.Helpers
 {
     /// <summary>
     /// Wrapper class for the MB logging manager

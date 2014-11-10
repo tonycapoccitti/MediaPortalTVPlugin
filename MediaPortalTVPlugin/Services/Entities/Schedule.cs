@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MediaPortalTVPlugin.Services.Entities
+namespace MediaBrowser.Plugins.MediaPortal.Services.Entities
 {
     public class Schedule
     {

@@ -4,11 +4,11 @@ using MediaBrowser.Common.ScheduledTasks;
 using MediaBrowser.Common.Security;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Plugins;
-using MediaPortalTVPlugin.Configuration;
 using MediaBrowser.Model.Logging;
-using MediaPortalTVPlugin.Helpers;
+using MediaBrowser.Plugins.MediaPortal.Configuration;
+using MediaBrowser.Plugins.MediaPortal.Helpers;
 
-namespace MediaPortalTVPlugin
+namespace MediaBrowser.Plugins.MediaPortal
 {
     /// <summary>
     /// Class ServerEntryPoint
@@ -88,7 +88,7 @@ namespace MediaPortalTVPlugin
         /// <returns></returns>
         public async Task LoadRegistrationInfoAsync()
         {
-            //Plugin.Instance.Registration = await PluginSecurityManager.GetRegistrationStatus("MediaPortalTVPlugin", "[**MB2CompatibleFeature**]").ConfigureAwait(false);
+            //Plugin.Instance.Registration = await PluginSecurityManager.GetRegistrationStatus("MediaBrowser.Plugins.MediaPortal", "[**MB2CompatibleFeature**]").ConfigureAwait(false);
         }
     }
 }

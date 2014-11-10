@@ -1,7 +1,7 @@
 ﻿using System;
 using MediaBrowser.Model.Plugins;
 
-namespace MediaPortalTVPlugin.Configuration
+namespace MediaBrowser.Plugins.MediaPortal.Configuration
 {
     /// <summary>
     /// Class PluginConfiguration

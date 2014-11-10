@@ -1,14 +1,13 @@
-﻿using MediaBrowser.Common.Plugins;
+﻿using System.IO;
+using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller.Plugins;
-using System;
-using System.IO;
 
-namespace MediaPortalTVPlugin.Configuration
+namespace MediaBrowser.Plugins.MediaPortal.Configuration
 {
     /// <summary>
-    /// Class MyConfigurationPage
+    /// Class MediaPortalConfigurationPage
     /// </summary>
-    class MyConfigurationPage : IPluginConfigurationPage
+    class MediaPortalConfigurationPage : IPluginConfigurationPage
     {
         /// <summary>
         /// Gets My Option.
@@ -16,7 +15,7 @@ namespace MediaPortalTVPlugin.Configuration
         /// <value>The Option.</value>
         public string Name
         {
-            get { return "MediaPortalTVPlugin"; }
+            get { return "MediaPortal"; }
         }
 
         /// <summary>
@@ -25,7 +24,7 @@ namespace MediaPortalTVPlugin.Configuration
         /// <returns>Stream.</returns>
         public Stream GetHtmlStream()
         {
-            return GetType().Assembly.GetManifestResourceStream("MediaPortalTVPlugin.Configuration.configPage.html");
+            return GetType().Assembly.GetManifestResourceStream("MediaBrowser.Plugins.MediaPortal.Configuration.configPage.html");
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace MediaPortalTVPlugin.Configuration
 
         public IPlugin Plugin
         {
-            get { return MediaPortalTVPlugin.Plugin.Instance; }
+            get { return MediaPortal.Plugin.Instance; }
         }
     }
 }

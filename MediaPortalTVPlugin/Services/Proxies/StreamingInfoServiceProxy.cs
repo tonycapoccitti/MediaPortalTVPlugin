@@ -2,9 +2,9 @@
 using System.Threading;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Serialization;
-using MediaPortalTVPlugin.Services.Entities;
+using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 
-namespace MediaPortalTVPlugin.Services.Proxies
+namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
     public class StreamingInfoServiceProxy : ProxyBase
     {
@@ -15,7 +15,7 @@ namespace MediaPortalTVPlugin.Services.Proxies
 
         protected override string EndPointSuffix
         {
-            get { return "StreamingService/json/"; }
+            get { return "StreamingService/json"; }
         }
 
         public List<TranscoderProfile> GetTranscoderProfiles(CancellationToken cancellationToken)

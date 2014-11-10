@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Threading;
-
-using MediaBrowser.Controller.LiveTv;
+using System.Threading.Tasks;
 using MediaBrowser.Common.Net;
-using MediaBrowser.Model.Serialization;
-using MediaPortalTVPlugin.Helpers;
-using MediaPortalTVPlugin.Interfaces;
-using MediaPortalTVPlugin.Services.Entities;
-using MediaPortalTVPlugin.Services.Proxies;
-using MediaBrowser.Model.Logging;
 using MediaBrowser.Controller.Channels;
+using MediaBrowser.Controller.LiveTv;
+using MediaBrowser.Model.Logging;
+using MediaBrowser.Model.Serialization;
+using MediaBrowser.Plugins.MediaPortal.Helpers;
+using MediaBrowser.Plugins.MediaPortal.Interfaces;
+using MediaBrowser.Plugins.MediaPortal.Services.Proxies;
 
-namespace MediaPortalTVPlugin
+namespace MediaBrowser.Plugins.MediaPortal
 {
     /// <summary>
     /// Provides MP integration for MB3
@@ -22,33 +20,24 @@ namespace MediaPortalTVPlugin
     {
         private readonly IPluginLogger _logger;
         private readonly TvServiceProxy _tasProxy;
+        private readonly StreamingServiceProxy _wssProxy;
 
         public MediaPortal1TVService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger)
         {
             _logger = new PluginLogger(logger);
-            _tasProxy = new TvServiceProxy(httpClient, jsonSerialiser);
+            _wssProxy = new StreamingServiceProxy(httpClient, jsonSerialiser);
+            _tasProxy = new TvServiceProxy(httpClient, jsonSerialiser, _wssProxy);
         }
 
-        //private HttpRequestOptions GenerateWssRequest(String action, params object[] args)
-        //{
-        //    var configuration = Plugin.Instance.Configuration;
-        //    var baseUrl = String.Format("http://{0}:{1}/MPExtended/StreamingService/stream/", configuration.ApiIpAddress, configuration.ApiPortNumber);
-        //    var request = new HttpRequestOptions()
-        //    {
-        //        Url = String.Concat(baseUrl, String.Format(action, args)),
-        //        RequestContentType = "application/json",
-        //        LogErrorResponseBody = true,
-        //        LogRequest = true,
-        //    };
+        public string HomePageUrl
+        {
+            get { return "http://www.team-mediaportal.com/"; }
+        }
 
-        //    if (configuration.IsAuthenticated)
-        //    {
-        //        // Add headers?
-        //    }
-
-        //    return request;
-        //}
-
+        public string Name
+        {
+            get { return "Media Portal V1 Live TV Service"; }
+        }
 
         public Task CancelSeriesTimerAsync(string timerId, CancellationToken cancellationToken)
         {
@@ -64,34 +53,15 @@ namespace MediaPortalTVPlugin
 
         public Task CreateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)
         {
-            _tasProxy.CreateSchedule(cancellationToken, new Schedule()
-            {
-                ChannelId = Int32.Parse(info.ChannelId),
-                Title = info.Name,
-                StartTime = info.StartDate,
-                EndTime = info.EndDate,
-                Series = true,
-                ScheduleType = 3 // Every time on this channel
-            });
+            _tasProxy.CreateSeriesSchedule(cancellationToken, info);
             return Task.Delay(0, cancellationToken);
         }
 
         public Task CreateTimerAsync(TimerInfo info, CancellationToken cancellationToken)
         {
-            _tasProxy.CreateSchedule(cancellationToken, new Schedule()
-            {
-                ChannelId = Int32.Parse(info.ChannelId),
-                Title = info.Name,
-                StartTime = info.StartDate,
-                EndTime = info.EndDate,
-                Series = false,
-                ScheduleType = 0 // Once
-            });
-
+            _tasProxy.CreateSchedule(cancellationToken, info);
             return Task.Delay(0, cancellationToken);
         }
-
-        public event EventHandler DataSourceChanged;
 
         public Task DeleteRecordingAsync(string recordingId, CancellationToken cancellationToken)
         {
@@ -125,7 +95,7 @@ namespace MediaPortalTVPlugin
 
         public Task<StreamResponseInfo> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
         {
-            throw new NotSupportedException();
+            return Task.FromResult<StreamResponseInfo>(null);
         }
 
         public Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
@@ -186,16 +156,6 @@ namespace MediaPortalTVPlugin
             return Task.FromResult(_tasProxy.GetSchedules(cancellationToken));
         }
 
-        public string HomePageUrl
-        {
-            get { return "http://www.team-mediaportal.com/"; }
-        }
-
-        public string Name
-        {
-            get { return "Media Portal V1 Live TV Service"; }
-        }
-
         public Task CloseLiveStream(string id, CancellationToken cancellationToken)
         {
             return Task.Delay(0);
@@ -221,8 +181,6 @@ namespace MediaPortalTVPlugin
             return Task.Delay(0);
         }
 
-        public event EventHandler<RecordingStatusChangedEventArgs> RecordingStatusChanged;
-
         public Task UpdateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)
         {
             _tasProxy.DeleteSchedule(cancellationToken, info.Id);
@@ -234,5 +192,9 @@ namespace MediaPortalTVPlugin
             _tasProxy.DeleteSchedule(cancellationToken, info.Id);
             return CreateTimerAsync(info, cancellationToken);
         }
+
+        public event EventHandler<RecordingStatusChangedEventArgs> RecordingStatusChanged;
+
+        public event EventHandler DataSourceChanged;
     }
 }

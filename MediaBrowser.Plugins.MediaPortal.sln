@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortalTVPlugin", "MediaPortalTVPlugin\MediaPortalTVPlugin.csproj", "{30B2A395-5E43-454F-8093-DAF307D6D4FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaBrowser.Plugins.MediaPortal", "MediaPortalTVPlugin\MediaBrowser.Plugins.MediaPortal.csproj", "{30B2A395-5E43-454F-8093-DAF307D6D4FB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B94DEBB5-D3A4-4FE5-82C2-2A18AEDA2B2E}"
 	ProjectSection(SolutionItems) = preProject

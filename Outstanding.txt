@@ -1,16 +1,23 @@
 Outstandings Tasks
 
  - Add TV Recording Images
- - Parameterise the channel / TV images
  - Add Combo for streaming profiles to configuration page
- - Add defensive code to DeleteRecording to check for MPExtended >= 0.6
- - Add processing to collect the "Series" data for a program when doing a "Get" (isolate to channel)
  - Set the "Is" properties on the programs
+ - Parameterise the channel / TV images size
+ - Add defensive code to DeleteRecording to check for MPExtended >= 0.6
+ - Round up the pre / post minute conversion
 
 Suggestions to MB:
 
  - Allow an implementation to define it's capabilities - 
-	- Can define week schedule
+	- CanScheduleDays
+	- CanScheduleWorkDays
+	- CanScheduleWeekendDays
+	- CanDeleteRecordings
+	- CanDeleteSeries
 
+ - Add a "Now", "NextDay", "PreviousDay" to the schedule grid
 
- - Add a "Now" to the schedule grid
+ Questions:
+
+  - How can I pass a list of values to the configuration html screen to populate a combo box

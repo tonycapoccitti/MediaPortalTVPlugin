@@ -3,7 +3,7 @@ using System.Threading;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Serialization;
 
-namespace MediaPortalTVPlugin.Services.Proxies
+namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
     /// <summary>
     /// Provides base methods for proxy classes
@@ -30,10 +30,11 @@ namespace MediaPortalTVPlugin.Services.Proxies
 
         protected abstract String EndPointSuffix { get; }
 
-        public static String GetBaseUrl()
+        public String GetUrl(String action, params object[] args)
         {
             var configuration = Plugin.Instance.Configuration;
-            return String.Format("http://{0}:{1}/MPExtended/", configuration.ApiIpAddress, configuration.ApiPortNumber);
+            var baseUrl = String.Format("http://{0}:{1}/MPExtended/{2}/", configuration.ApiIpAddress, configuration.ApiPortNumber, EndPointSuffix);
+            return String.Concat(baseUrl, String.Format(action, args));
         }
 
         /// <summary>
@@ -45,11 +46,9 @@ namespace MediaPortalTVPlugin.Services.Proxies
         protected HttpRequestOptions CreateRequest(String action, params object[] args)
         {
             var configuration = Plugin.Instance.Configuration;
-            var baseUrl = String.Concat(GetBaseUrl(), EndPointSuffix);
-
             var request = new HttpRequestOptions()
             {
-                Url = String.Concat(baseUrl, String.Format(action, args)),
+                Url = GetUrl(action, args),
                 RequestContentType = "application/json",
                 LogErrorResponseBody = true,
                 LogRequest = true,

@@ -1,16 +1,12 @@
-﻿using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
-using MediaPortalTVPlugin.Configuration;
-using MediaBrowser.Common.Configuration;
+﻿using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
+using MediaBrowser.Plugins.MediaPortal.Configuration;
 
-namespace MediaPortalTVPlugin
+namespace MediaBrowser.Plugins.MediaPortal
 {
     /// <summary>
     /// Class Plugin
