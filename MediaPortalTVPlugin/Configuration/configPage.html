@@ -12,12 +12,12 @@
 
                     <ul class="ulForm" data-role="listview">
                         <li>
-                            <label for="txtApiIpAddress">
-                                API IP Address:
+                            <label for="txtApiHostName">
+                                API Host Name:
                             </label>
-                            <input id="txtApiIpAddress" name="txtApiIpAddress" />
+                            <input id="txtApiHostName" name="txtApiHostName" />
                             <div class="fieldDescription">
-                                The IP address of the MP Extended Service
+                                The host name (address) of the MP Extended Service
                             </div>
                         </li>
                         <li>
@@ -27,6 +27,28 @@
                             <input id="txtApiPortNumber" name="txtApiPortNumber" />
                             <div class="fieldDescription">
                                 The port number of the MP Extended Service
+                            </div>
+                        </li>
+                        <li>
+                            <label for="chkRequiresAuthentication">Requires authentication</label>
+                            <input type="checkbox" id="chkRequiresAuthentication" data-mini="true" />
+                        </li>
+                        <li>
+                            <label for="txtUserName">
+                                UserName:
+                            </label>
+                            <input id="txtUserName" name="txtUserName" />
+                            <div class="fieldDescription">
+                                The username specified in MPExtended - Authentication
+                            </div>
+                        </li>
+                        <li>
+                            <label for="txtPassword">
+                                Password:
+                            </label>
+                            <input id="txtPassword" name="txtPassword" />
+                            <div class="fieldDescription">
+                                The password specified in MPExtended - Authentication
                             </div>
                         </li>
                         <li>
@@ -69,8 +91,11 @@
 
                 ApiClient.getPluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId).done(function (config) {
 
-                    $('#txtApiIpAddress', page).val(config.ApiIpAddress);
+                    $('#txtApiHostName', page).val(config.ApiHostName);
                     $('#txtApiPortNumber', page).val(config.ApiPortNumber);
+                    $('#chkRequiresAuthentication', page).checked(config.RequiresAuthentication || false).checkboxradio("refresh");
+                    $('#txtUserName', page).val(config.UserName);
+                    $('#txtPassword', page).val(config.Password);
 
                     Dashboard.hideLoadingMsg();
                 });
@@ -84,8 +109,11 @@
 
                 ApiClient.getPluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId).done(function (config) {
 
-                    config.ApiIpAddress = $('#txtApiIpAddress', form).val();
+                    config.ApiHostName = $('#txtApiHostName', form).val();
                     config.ApiPortNumber = $('#txtApiPortNumber', form).val();
+                    config.RequiresAuthentication = $('#chkRequiresAuthentication', form).checked();
+                    config.UserName = $('#txtUserName', form).val();
+                    config.Password = $('#txtPassword', form).val();
 
                     ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
                 });

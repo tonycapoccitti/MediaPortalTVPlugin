@@ -14,15 +14,15 @@ using MediaBrowser.Plugins.MediaPortal.Services.Proxies;
 namespace MediaBrowser.Plugins.MediaPortal
 {
     /// <summary>
-    /// Provides MP integration for MB3
+    /// Provides MP (v1) integration for MB3
     /// </summary>
-    public class MediaPortal1TVService : ILiveTvService
+    public class MediaPortal1TvService : ILiveTvService
     {
         private readonly IPluginLogger _logger;
         private readonly TvServiceProxy _tasProxy;
         private readonly StreamingServiceProxy _wssProxy;
 
-        public MediaPortal1TVService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger)
+        public MediaPortal1TvService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger)
         {
             _logger = new PluginLogger(logger);
             _wssProxy = new StreamingServiceProxy(httpClient, jsonSerialiser);
@@ -121,31 +121,50 @@ namespace MediaBrowser.Plugins.MediaPortal
         public Task<LiveTvServiceStatusInfo> GetStatusInfoAsync(CancellationToken cancellationToken)
         {
             LiveTvServiceStatusInfo result;
-            try
-            {
-                var response = _tasProxy.GetStatusInfo(cancellationToken);
 
+            var configurationValidationResult = Plugin.Instance.Configuration.Validate();
+
+            // Validate configuration first
+            if (!configurationValidationResult.IsValid)
+            {
                 result = new LiveTvServiceStatusInfo()
                 {
                     HasUpdateAvailable = false,
-                    Status = MediaBrowser.Model.LiveTv.LiveTvServiceStatus.Ok,
-                    StatusMessage = String.Format("MPExtended Service Version: {0} - API Version : {1}", response.ServiceVersion, response.ApiVersion),
+                    Status = Model.LiveTv.LiveTvServiceStatus.Unavailable,
+                    StatusMessage = configurationValidationResult.Summary,
                     Tuners = new List<LiveTvTunerInfo>(),
                     Version = "1.0"
-                };
+                };                    
             }
-            catch (Exception ex)
+            else
             {
-                _logger.Error(ex, "Exception occured getting the MP service status");
-
-                result = new LiveTvServiceStatusInfo()
+                try
                 {
-                    HasUpdateAvailable = false,
-                    Status = MediaBrowser.Model.LiveTv.LiveTvServiceStatus.Unavailable,
-                    StatusMessage = "Unable to establish a connection with MediaPortal API - check your settings",
-                    Tuners = new List<LiveTvTunerInfo>(),
-                    Version = "1.0"
-                };
+                    // Connect to TAS
+                    var response = _tasProxy.GetStatusInfo(cancellationToken);
+
+                    result = new LiveTvServiceStatusInfo()
+                    {
+                        HasUpdateAvailable = false,
+                        Status = Model.LiveTv.LiveTvServiceStatus.Ok,
+                        StatusMessage = String.Format("MPExtended Service Version: {0} - API Version : {1}", response.ServiceVersion, response.ApiVersion),
+                        Tuners = new List<LiveTvTunerInfo>(),
+                        Version = "1.0"
+                    };
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Exception occured getting the MP service status");
+
+                    result = new LiveTvServiceStatusInfo()
+                    {
+                        HasUpdateAvailable = false,
+                        Status = Model.LiveTv.LiveTvServiceStatus.Unavailable,
+                        StatusMessage = "Unable to establish a connection with MediaPortal API - check your settings",
+                        Tuners = new List<LiveTvTunerInfo>(),
+                        Version = "1.0"
+                    };
+                }
             }
 
             return Task.FromResult(result);

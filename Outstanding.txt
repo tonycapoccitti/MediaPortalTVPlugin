@@ -1,21 +1,40 @@
 Outstandings Tasks
 
- - Add TV Recording Images
+ - Add streaming for direct first
  - Add Combo for streaming profiles to configuration page
- - Set the "Is" properties on the programs
+ - Add TV Recording Images (requires streaming or a change to MPExtended)
+ - Round UP the pre / post padding seconds - minute conversion
  - Parameterise the channel / TV images size
- - Add defensive code to DeleteRecording to check for MPExtended >= 0.6
- - Round up the pre / post minute conversion
+
+Unsupported:
+ - Delete recording when using MPExtended < 0.6
+ - Picking individual days for a series schedule (if more than one day is specifed and it is not Monday - Firday or Saturday - Sunday, we opt for recording everyday)
+ - Record Only New Programs
+ - Setting the "Is" properties on the programs (IsMovie etc)
 
 Suggestions to MB:
 
- - Allow an implementation to define it's capabilities - 
-	- CanScheduleDays
-	- CanScheduleWorkDays
-	- CanScheduleWeekendDays
-	- CanDeleteRecordings
-	- CanDeleteSeries
+ - Live TV appears in the client when the Plugin reports it is "Unavailable"
 
+ - MPExtended doesn't provide update methods for schedules (series / timers), so when "updating", we have to 
+   delete the existing schedule and create a new one. This gives the schedule a new Id. So when the edit
+   page stays in edit mode and a second update is made, it fails on saving as the "old" Id is being used.
+   This would be resolved by returning to the list page when a schedule is updated. When you create a new schedule
+   (from the guide, then clicking save) you are taken to the list page, so a modied behaviour would be more consistent
+   with that.
+
+ - Allow an implementation to define it's capabilities. A suggestion would be to have on ILiveTvService
+	
+	public LiveTVCapability Capabilities { get; }
+
+	The LiveTVCapability enum would be [Flags] with values like:
+		- CanScheduleDays = 1
+		- CanScheduleWorkDays = 2
+		- CanScheduleWeekendDays = 4
+		- CanDeleteRecordings = 8
+		- CanDeleteSeries = 16
+		.....
+		
  - Add a "Now", "NextDay", "PreviousDay" to the schedule grid
 
  Questions:

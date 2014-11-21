@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Text;
 using System.Threading;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Serialization;
@@ -33,7 +35,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         public String GetUrl(String action, params object[] args)
         {
             var configuration = Plugin.Instance.Configuration;
-            var baseUrl = String.Format("http://{0}:{1}/MPExtended/{2}/", configuration.ApiIpAddress, configuration.ApiPortNumber, EndPointSuffix);
+            var baseUrl = String.Format("http://{0}:{1}/MPExtended/{2}/", configuration.ApiHostName, configuration.ApiPortNumber, EndPointSuffix);
             return String.Concat(baseUrl, String.Format(action, args));
         }
 
@@ -54,9 +56,12 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 LogRequest = true,
             };
 
-            if (configuration.IsAuthenticated)
+            if (configuration.RequiresAuthentication)
             {
                 // Add headers?
+                string authInfo = String.Format("{0}:{1}", configuration.UserName, configuration.Password);
+                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+                request.RequestHeaders["Authorization"] = "Basic " + authInfo;
             }
 
             return request;

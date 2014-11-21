@@ -78,7 +78,9 @@ namespace MediaBrowser.Plugins.MediaPortal.Helpers
                 return ScheduleType.WorkingDays;
             }
 
-            throw new InvalidOperationException();
+            // if we get here, then the user specified options that are not supported
+            // by MP - so specify daily
+            return ScheduleType.Daily;
         }
 
         public static IEnumerable<TResult> Process<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> func) where TResult : class
