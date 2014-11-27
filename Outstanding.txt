@@ -1,15 +1,13 @@
 Outstandings Tasks
 
- - Add streaming for direct first
- - Add Combo for streaming profiles to configuration page
- - Add TV Recording Images (requires streaming or a change to MPExtended)
+ - Test Live TV and Recording Streaming
  - Round UP the pre / post padding seconds - minute conversion
- - Parameterise the channel / TV images size
+ - Add configuration Combo for streaming profiles to configuration page
+ - Add configuration for the channel / TV images size
 
 Unsupported:
- - Delete recording when using MPExtended < 0.6
- - Picking individual days for a series schedule (if more than one day is specifed and it is not Monday - Firday or Saturday - Sunday, we opt for recording everyday)
- - Record Only New Programs
+ - Picking individual days for a series schedule (if more than one day is specifed and it is not Monday - Friday or Saturday - Sunday, we opt for recording everyday)
+ - Recording Only New Programs
  - Setting the "Is" properties on the programs (IsMovie etc)
 
 Suggestions to MB:

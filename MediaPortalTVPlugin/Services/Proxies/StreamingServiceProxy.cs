@@ -1,5 +1,7 @@
-﻿using MediaBrowser.Common.Net;
+﻿using System;
+using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Serialization;
+using MediaBrowser.Plugins.MediaPortal.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
@@ -20,6 +22,21 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         protected override string EndPointSuffix
         {
             get { return "StreamingService/stream"; }
+        }
+
+        public string GetRecordingImageUrl(String recordingId)
+        {
+            return GetUrl("ExtractImage?type={0}&provider={1}&position={2}&itemid={3}",
+                WebMediaType.Recording,
+                0,
+                300,
+                recordingId);
+        }
+
+        public String GetChannelLogoUrl(int channelId)
+        {
+            return GetUrl("GetArtworkResized?channelId={0}&artworktype={1}&offset=0&mediatype={2}&maxWidth=160&maxHeight=160",
+                    channelId, (Int32)WebFileType.Logo, (Int32)WebMediaType.TV);
         }
     }
 }

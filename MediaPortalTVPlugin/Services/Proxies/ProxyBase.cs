@@ -3,7 +3,9 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using MediaBrowser.Common.Net;
+using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Serialization;
+using MediaBrowser.Plugins.MediaPortal.Configuration;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
@@ -23,6 +25,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             Serialiser = serialiser;
         }
 
+        public PluginConfiguration Configuration { get { return Plugin.Instance.Configuration;  } }
+
         /// <summary>
         /// Gets the HTTP client.
         /// </summary>
@@ -32,10 +36,9 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
         protected abstract String EndPointSuffix { get; }
 
-        public String GetUrl(String action, params object[] args)
+        protected String GetUrl(String action, params object[] args)
         {
-            var configuration = Plugin.Instance.Configuration;
-            var baseUrl = String.Format("http://{0}:{1}/MPExtended/{2}/", configuration.ApiHostName, configuration.ApiPortNumber, EndPointSuffix);
+            var baseUrl = String.Format("http://{0}:{1}/MPExtended/{2}/", Configuration.ApiHostName, Configuration.ApiPortNumber, EndPointSuffix);
             return String.Concat(baseUrl, String.Format(action, args));
         }
 

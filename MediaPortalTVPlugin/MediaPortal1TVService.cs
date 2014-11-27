@@ -4,11 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.Channels;
+using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.LiveTv;
 using MediaBrowser.Model.Logging;
+using MediaBrowser.Model.MediaInfo;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Plugins.MediaPortal.Helpers;
 using MediaBrowser.Plugins.MediaPortal.Interfaces;
+using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 using MediaBrowser.Plugins.MediaPortal.Services.Proxies;
 
 namespace MediaBrowser.Plugins.MediaPortal
@@ -18,14 +21,30 @@ namespace MediaBrowser.Plugins.MediaPortal
     /// </summary>
     public class MediaPortal1TvService : ILiveTvService
     {
+        private readonly INetworkManager _networkManager;
+        private readonly IUserManager _userManager;
         private readonly IPluginLogger _logger;
         private readonly TvServiceProxy _tasProxy;
         private readonly StreamingServiceProxy _wssProxy;
+        private readonly StreamingInfoServiceProxy _wssInfoProxy;
+        private static StreamingDetails _currentStreamDetails;
 
-        public MediaPortal1TvService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaPortal1TvService" /> class.
+        /// </summary>
+        /// <param name="httpClient">The HTTP client.</param>
+        /// <param name="jsonSerialiser">The json serialiser.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="networkManager">The network manager.</param>
+        /// <param name="userManager">The user manager.</param>
+        public MediaPortal1TvService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger,
+            INetworkManager networkManager, IUserManager userManager)
         {
+            _networkManager = networkManager;
+            _userManager = userManager;
             _logger = new PluginLogger(logger);
             _wssProxy = new StreamingServiceProxy(httpClient, jsonSerialiser);
+            _wssInfoProxy = new StreamingInfoServiceProxy(httpClient, jsonSerialiser, _networkManager);
             _tasProxy = new TvServiceProxy(httpClient, jsonSerialiser, _wssProxy);
         }
 
@@ -175,21 +194,19 @@ namespace MediaBrowser.Plugins.MediaPortal
             return Task.FromResult(_tasProxy.GetSchedules(cancellationToken));
         }
 
-        public Task CloseLiveStream(string id, CancellationToken cancellationToken)
-        {
-            return Task.Delay(0);
-        }
-
-        public Task<ChannelMediaInfo> GetChannelStream(string channelId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult<ChannelMediaInfo>(null);
-        }
-
         public Task<ChannelMediaInfo> GetRecordingStream(string recordingId, CancellationToken cancellationToken)
         {
-            return Task.FromResult<ChannelMediaInfo>(null);
-        }
+            // Cancel the existing stream if present
+            if (_currentStreamDetails != null)
+            {
+                _wssInfoProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
+            }
 
+            // Start a new one and store it away
+            _currentStreamDetails = _wssInfoProxy.GetRecordingStream(cancellationToken, recordingId, TimeSpan.Zero);
+            return Task.FromResult(_currentStreamDetails.StreamInfo);
+        }
+        
         public Task ResetTuner(string id, CancellationToken cancellationToken)
         {
             return Task.Delay(0);
@@ -198,6 +215,30 @@ namespace MediaBrowser.Plugins.MediaPortal
         public Task RecordLiveStream(string id, CancellationToken cancellationToken)
         {
             return Task.Delay(0);
+        }
+
+        public Task CloseLiveStream(string id, CancellationToken cancellationToken)
+        {
+            if (_currentStreamDetails.StreamInfo.Id == id)
+            {
+                _wssInfoProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
+                return Task.Delay(0);
+            }
+            
+            throw new Exception(String.Format("Unknown stream id requested for close: {0}", id));
+        }
+
+        public Task<ChannelMediaInfo> GetChannelStream(string channelId, CancellationToken cancellationToken)
+        {
+            // Cancel the existing stream if present
+            if (_currentStreamDetails != null)
+            {
+                _wssInfoProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
+            }
+
+            // Start a new one and store it away
+            _currentStreamDetails = _wssInfoProxy.GetRecordingStream(cancellationToken, channelId, TimeSpan.Zero);
+            return Task.FromResult(_currentStreamDetails.StreamInfo);
         }
 
         public Task UpdateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)

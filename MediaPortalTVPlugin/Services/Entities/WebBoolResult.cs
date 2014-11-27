@@ -3,5 +3,6 @@
     public class WebBoolResult
     {
         public bool Result { get; set; }
+ 
     }
 }
