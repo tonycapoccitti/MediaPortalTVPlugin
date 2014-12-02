@@ -4,6 +4,8 @@ Outstandings Tasks
  - Round UP the pre / post padding seconds - minute conversion
  - Add configuration Combo for streaming profiles to configuration page
  - Add configuration for the channel / TV images size
+ - Add configuration for the position to take the recording image from.
+ - Fix channel logo
 
 Unsupported:
  - Picking individual days for a series schedule (if more than one day is specifed and it is not Monday - Friday or Saturday - Sunday, we opt for recording everyday)
@@ -38,3 +40,4 @@ Suggestions to MB:
  Questions:
 
   - How can I pass a list of values to the configuration html screen to populate a combo box
+  - MB doesn't provide guide programme images out of the box - is there a TVDB provider that I can use to get images for tv programmes, or perhaps the main program can search based on the programme title when one isn't supplied?

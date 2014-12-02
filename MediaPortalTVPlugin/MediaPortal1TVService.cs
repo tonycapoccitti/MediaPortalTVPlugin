@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.Channels;
+using MediaBrowser.Controller.Drawing;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.LiveTv;
 using MediaBrowser.Model.Logging;
@@ -88,12 +89,6 @@ namespace MediaBrowser.Plugins.MediaPortal
             return Task.Delay(0, cancellationToken);
         }
 
-        public Task<StreamResponseInfo> GetChannelImageAsync(string channelId, CancellationToken cancellationToken)
-        {
-            // This is not required as the channel image is set in the GetChannels method
-            throw new NotSupportedException();
-        }
-
         public async Task<IEnumerable<ChannelInfo>> GetChannelsAsync(CancellationToken cancellationToken)
         {
             return _tasProxy.GetChannels(cancellationToken);
@@ -112,19 +107,14 @@ namespace MediaBrowser.Plugins.MediaPortal
             });
         }
 
-        public Task<StreamResponseInfo> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult<StreamResponseInfo>(null);
-        }
-
         public Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
         {
             return Task.FromResult(_tasProxy.GetPrograms(channelId, startDateUtc, endDateUtc, cancellationToken));
         }
 
-        public Task<StreamResponseInfo> GetRecordingImageAsync(string recordingId, CancellationToken cancellationToken)
+        public Task<ImageStream> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
         {
-            return Task.FromResult<StreamResponseInfo>(null);
+            throw new NotImplementedException();
         }
 
         public Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(CancellationToken cancellationToken)
@@ -237,7 +227,7 @@ namespace MediaBrowser.Plugins.MediaPortal
             }
 
             // Start a new one and store it away
-            _currentStreamDetails = _wssInfoProxy.GetRecordingStream(cancellationToken, channelId, TimeSpan.Zero);
+            _currentStreamDetails = _wssInfoProxy.GetLiveTvStream(cancellationToken, channelId);
             return Task.FromResult(_currentStreamDetails.StreamInfo);
         }
 
@@ -245,6 +235,16 @@ namespace MediaBrowser.Plugins.MediaPortal
         {
             _tasProxy.DeleteSchedule(cancellationToken, info.Id);
             return CreateSeriesTimerAsync(info, cancellationToken);
+        }
+
+        public Task<ImageStream> GetChannelImageAsync(string channelId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ImageStream> GetRecordingImageAsync(string recordingId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public Task UpdateTimerAsync(TimerInfo info, CancellationToken cancellationToken)
