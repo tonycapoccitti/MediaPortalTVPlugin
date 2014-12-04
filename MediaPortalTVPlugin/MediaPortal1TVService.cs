@@ -2,18 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaBrowser.Common.Net;
+
 using MediaBrowser.Controller.Channels;
 using MediaBrowser.Controller.Drawing;
-using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.LiveTv;
-using MediaBrowser.Model.Logging;
-using MediaBrowser.Model.MediaInfo;
-using MediaBrowser.Model.Serialization;
-using MediaBrowser.Plugins.MediaPortal.Helpers;
-using MediaBrowser.Plugins.MediaPortal.Interfaces;
 using MediaBrowser.Plugins.MediaPortal.Services.Entities;
-using MediaBrowser.Plugins.MediaPortal.Services.Proxies;
 
 namespace MediaBrowser.Plugins.MediaPortal
 {
@@ -22,32 +15,7 @@ namespace MediaBrowser.Plugins.MediaPortal
     /// </summary>
     public class MediaPortal1TvService : ILiveTvService
     {
-        private readonly INetworkManager _networkManager;
-        private readonly IUserManager _userManager;
-        private readonly IPluginLogger _logger;
-        private readonly TvServiceProxy _tasProxy;
-        private readonly StreamingServiceProxy _wssProxy;
-        private readonly StreamingInfoServiceProxy _wssInfoProxy;
         private static StreamingDetails _currentStreamDetails;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaPortal1TvService" /> class.
-        /// </summary>
-        /// <param name="httpClient">The HTTP client.</param>
-        /// <param name="jsonSerialiser">The json serialiser.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="networkManager">The network manager.</param>
-        /// <param name="userManager">The user manager.</param>
-        public MediaPortal1TvService(IHttpClient httpClient, IJsonSerializer jsonSerialiser, ILogger logger,
-            INetworkManager networkManager, IUserManager userManager)
-        {
-            _networkManager = networkManager;
-            _userManager = userManager;
-            _logger = new PluginLogger(logger);
-            _wssProxy = new StreamingServiceProxy(httpClient, jsonSerialiser);
-            _wssInfoProxy = new StreamingInfoServiceProxy(httpClient, jsonSerialiser, _networkManager);
-            _tasProxy = new TvServiceProxy(httpClient, jsonSerialiser, _wssProxy);
-        }
 
         public string HomePageUrl
         {
@@ -61,37 +29,37 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task CancelSeriesTimerAsync(string timerId, CancellationToken cancellationToken)
         {
-            _tasProxy.DeleteSchedule(cancellationToken, timerId);
+            Plugin.TvProxy.DeleteSchedule(cancellationToken, timerId);
             return Task.Delay(0, cancellationToken);
         }
 
         public Task CancelTimerAsync(string timerId, CancellationToken cancellationToken)
         {
-            _tasProxy.DeleteSchedule(cancellationToken, timerId);
+            Plugin.TvProxy.DeleteSchedule(cancellationToken, timerId);
             return Task.Delay(0, cancellationToken);
         }
 
         public Task CreateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)
         {
-            _tasProxy.CreateSeriesSchedule(cancellationToken, info);
+            Plugin.TvProxy.CreateSeriesSchedule(cancellationToken, info);
             return Task.Delay(0, cancellationToken);
         }
 
         public Task CreateTimerAsync(TimerInfo info, CancellationToken cancellationToken)
         {
-            _tasProxy.CreateSchedule(cancellationToken, info);
+            Plugin.TvProxy.CreateSchedule(cancellationToken, info);
             return Task.Delay(0, cancellationToken);
         }
 
         public Task DeleteRecordingAsync(string recordingId, CancellationToken cancellationToken)
         {
-            _tasProxy.DeleteRecording(cancellationToken, recordingId);
+            Plugin.TvProxy.DeleteRecording(cancellationToken, recordingId);
             return Task.Delay(0, cancellationToken);
         }
 
         public async Task<IEnumerable<ChannelInfo>> GetChannelsAsync(CancellationToken cancellationToken)
         {
-            return _tasProxy.GetChannels(cancellationToken);
+            return Plugin.TvProxy.GetChannels(cancellationToken);
         }
 
         public Task<SeriesTimerInfo> GetNewTimerDefaultsAsync(CancellationToken cancellationToken, ProgramInfo program = null)
@@ -109,7 +77,7 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task<IEnumerable<ProgramInfo>> GetProgramsAsync(string channelId, DateTime startDateUtc, DateTime endDateUtc, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_tasProxy.GetPrograms(channelId, startDateUtc, endDateUtc, cancellationToken));
+            return Task.FromResult(Plugin.TvProxy.GetPrograms(channelId, startDateUtc, endDateUtc, cancellationToken));
         }
 
         public Task<ImageStream> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
@@ -119,12 +87,12 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(_tasProxy.GetRecordings(cancellationToken));
+            return Task.FromResult(Plugin.TvProxy.GetRecordings(cancellationToken));
         }
 
         public Task<IEnumerable<SeriesTimerInfo>> GetSeriesTimersAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(_tasProxy.GetSeriesSchedules(cancellationToken));
+            return Task.FromResult(Plugin.TvProxy.GetSeriesSchedules(cancellationToken));
         }
 
         public Task<LiveTvServiceStatusInfo> GetStatusInfoAsync(CancellationToken cancellationToken)
@@ -150,7 +118,7 @@ namespace MediaBrowser.Plugins.MediaPortal
                 try
                 {
                     // Connect to TAS
-                    var response = _tasProxy.GetStatusInfo(cancellationToken);
+                    var response = Plugin.TvProxy.GetStatusInfo(cancellationToken);
 
                     result = new LiveTvServiceStatusInfo()
                     {
@@ -163,7 +131,7 @@ namespace MediaBrowser.Plugins.MediaPortal
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Exception occured getting the MP service status");
+                    Plugin.Logger.Error(ex, "Exception occured getting the MP service status");
 
                     result = new LiveTvServiceStatusInfo()
                     {
@@ -181,7 +149,7 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task<IEnumerable<TimerInfo>> GetTimersAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(_tasProxy.GetSchedules(cancellationToken));
+            return Task.FromResult(Plugin.TvProxy.GetSchedules(cancellationToken));
         }
 
         public Task<ChannelMediaInfo> GetRecordingStream(string recordingId, CancellationToken cancellationToken)
@@ -189,11 +157,11 @@ namespace MediaBrowser.Plugins.MediaPortal
             // Cancel the existing stream if present
             if (_currentStreamDetails != null)
             {
-                _wssInfoProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
+                Plugin.StreamingProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
             }
 
             // Start a new one and store it away
-            _currentStreamDetails = _wssInfoProxy.GetRecordingStream(cancellationToken, recordingId, TimeSpan.Zero);
+            _currentStreamDetails = Plugin.StreamingProxy.GetRecordingStream(cancellationToken, recordingId, TimeSpan.Zero);
             return Task.FromResult(_currentStreamDetails.StreamInfo);
         }
         
@@ -211,7 +179,7 @@ namespace MediaBrowser.Plugins.MediaPortal
         {
             if (_currentStreamDetails.StreamInfo.Id == id)
             {
-                _wssInfoProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
+                Plugin.StreamingProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
                 return Task.Delay(0);
             }
             
@@ -223,17 +191,17 @@ namespace MediaBrowser.Plugins.MediaPortal
             // Cancel the existing stream if present
             if (_currentStreamDetails != null)
             {
-                _wssInfoProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
+                Plugin.StreamingProxy.CancelStream(cancellationToken, _currentStreamDetails.StreamIdentifier);
             }
 
             // Start a new one and store it away
-            _currentStreamDetails = _wssInfoProxy.GetLiveTvStream(cancellationToken, channelId);
+            _currentStreamDetails = Plugin.StreamingProxy.GetLiveTvStream(cancellationToken, channelId);
             return Task.FromResult(_currentStreamDetails.StreamInfo);
         }
 
         public Task UpdateSeriesTimerAsync(SeriesTimerInfo info, CancellationToken cancellationToken)
         {
-            _tasProxy.DeleteSchedule(cancellationToken, info.Id);
+            Plugin.TvProxy.DeleteSchedule(cancellationToken, info.Id);
             return CreateSeriesTimerAsync(info, cancellationToken);
         }
 
@@ -249,7 +217,7 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task UpdateTimerAsync(TimerInfo info, CancellationToken cancellationToken)
         {
-            _tasProxy.DeleteSchedule(cancellationToken, info.Id);
+            Plugin.TvProxy.DeleteSchedule(cancellationToken, info.Id);
             return CreateTimerAsync(info, cancellationToken);
         }
 

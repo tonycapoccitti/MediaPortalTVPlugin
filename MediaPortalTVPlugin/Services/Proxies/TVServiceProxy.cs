@@ -16,6 +16,9 @@ using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
+    /// <summary>
+    /// Provides access to the MP tv service functionality
+    /// </summary>
     public class TvServiceProxy : ProxyBase
     {
         private readonly StreamingServiceProxy _wssProxy;
@@ -280,12 +283,12 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
             if (schedule.IsPrePaddingRequired & schedule.PrePaddingSeconds > 0)
             {
-                builder.AppendFormat("preRecordInterval={0}&", schedule.PrePaddingSeconds / 60);
+                builder.AppendFormat("preRecordInterval={0}&", TimeSpan.FromSeconds(schedule.PrePaddingSeconds).RoundUpMinutes());
             }
 
             if (schedule.IsPostPaddingRequired & schedule.PostPaddingSeconds > 0)
             {
-                builder.AppendFormat("postRecordInterval={0}&", schedule.PostPaddingSeconds / 60);
+                builder.AppendFormat("postRecordInterval={0}&", TimeSpan.FromSeconds(schedule.PostPaddingSeconds).RoundUpMinutes());
             }
 
             builder.Remove(builder.Length - 1, 1);

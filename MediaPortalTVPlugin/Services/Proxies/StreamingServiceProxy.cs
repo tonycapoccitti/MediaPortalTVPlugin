@@ -1,41 +1,180 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Web;
 using MediaBrowser.Common.Net;
+using MediaBrowser.Controller.Channels;
+using MediaBrowser.Model.MediaInfo;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Plugins.MediaPortal.Entities;
+using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
     /// <summary>
-    ///  Provides access to the MP Streaming service
+    /// Provides access to the MP streaming functionality
     /// </summary>
     public class StreamingServiceProxy : ProxyBase
     {
+        private readonly INetworkManager _networkManager;
+        private const int STREAM_TIMEOUT_DIRECT = 10;
+
+        private String _streamingEndpoint = "StreamingService/stream";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StreamingServiceProxy"/> class.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
         /// <param name="serialiser">The serialiser.</param>
-        public StreamingServiceProxy(IHttpClient httpClient, IJsonSerializer serialiser) : base(httpClient, serialiser)
+        /// <param name="networkManager">The network manager.</param>
+        public StreamingServiceProxy(IHttpClient httpClient, IJsonSerializer serialiser, INetworkManager networkManager)
+            : base(httpClient, serialiser)
         {
+            _networkManager = networkManager;
         }
 
         protected override string EndPointSuffix
         {
-            get { return "StreamingService/stream"; }
+            get { return "StreamingService/json"; }
         }
 
+        /// <summary>
+        /// Gets the transcoder profiles supported
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public List<TranscoderProfile> GetTranscoderProfiles(CancellationToken cancellationToken)
+        {
+            return GetFromService<List<TranscoderProfile>>(cancellationToken, "GetTranscoderProfiles");
+        }
+
+        /// <summary>
+        /// Gets a single transcoder profile.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        public TranscoderProfile GetTranscoderProfile(CancellationToken cancellationToken, String name)
+        {
+            return GetFromService<TranscoderProfile>(cancellationToken, "GetTranscoderProfileByName?name={0}", name);
+        }
+
+        /// <summary>
+        /// Gets the video stream for an existing recording
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="recordingId">The recording id.</param>
+        /// <param name="startPosition">The start position.</param>
+        /// <returns></returns>
+        public StreamingDetails GetRecordingStream(CancellationToken cancellationToken, String recordingId, TimeSpan startPosition)
+        {
+            return GetStream(cancellationToken, WebMediaType.Recording, recordingId, startPosition);
+        }
+
+        /// <summary>
+        /// Gets a live tv stream.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="channelId">The channel to stream.</param>
+        /// <returns></returns>
+        public StreamingDetails GetLiveTvStream(CancellationToken cancellationToken, String channelId)
+        {
+            return GetStream(cancellationToken, WebMediaType.TV, channelId, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Cancels an executing stream.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="streamIdentifier">The stream identifier.</param>
+        /// <returns></returns>
+        public bool CancelStream(CancellationToken cancellationToken, string streamIdentifier)
+        {
+            return GetFromService<WebBoolResult>(cancellationToken, "StopStream?identifier={0}", streamIdentifier).Result;
+        }
+
+        private StreamingDetails GetStream(CancellationToken cancellationToken, WebMediaType webMediaType, string itemId, TimeSpan startPosition)
+        {
+            var profile = GetTranscoderProfile(cancellationToken, "Direct");
+
+            // var profile = GetTranscoderProfile(cancellationToken, Configuration.LiveStreamingProfileName);
+            if (profile == null)
+            {
+                throw new Exception(String.Format("Cannot find a profile with the name {0}",
+                    Configuration.LiveStreamingProfileName));
+            }
+
+            var identifier = HttpUtility.UrlEncode(String.Format("{0}-{1}-{2:yyyyMMddHHmmss}", webMediaType, itemId, DateTime.UtcNow));
+            var isStreamInitialised = GetFromService<WebBoolResult>(cancellationToken,
+                    "InitStream?type={0}&provider={1}&itemId={2}&identifier={3}&idleTimeout={4}&clientDescription={5}",
+                    webMediaType,
+                    0, // Provider - use 0 for recordings and tv
+                    itemId, // itemId
+                    identifier, // identifier
+                    STREAM_TIMEOUT_DIRECT,
+                    identifier).Result; //Idletimoue
+
+            if (!isStreamInitialised)
+            {
+                throw new Exception(String.Format("Could not initialise the stream. Identifier={0}", identifier));
+            }
+
+            // Returns the url for streaming
+            var url =
+                GetFromService<WebStringResult>(cancellationToken,
+                    "StartStream?identifier={0}&profileName={1}&startPosition={2}",
+                    identifier,
+                    profile.Name, // Provider
+                    (Int32)startPosition.TotalSeconds).Result;
+
+            Boolean isAuthorised = true;
+            foreach (var ipAddress in _networkManager.GetLocalIpAddresses())
+            {
+                isAuthorised = isAuthorised && GetFromService<WebBoolResult>(
+                    cancellationToken, "AuthorizeRemoteHostForStreaming?host={0}", ipAddress).Result;
+            }
+
+            // var isAuthorisedForStreaming = GetFromService<WebBoolResult>(cancellationToken, "AuthorizeStreaming").Result;
+
+            if (!isAuthorised)
+            {
+                throw new Exception(String.Format("Could not authorise the stream. Identifier={0}", identifier));
+            }
+
+            return new StreamingDetails()
+            {
+                StreamIdentifier = identifier,
+                StreamInfo = new ChannelMediaInfo()
+                {
+                    Path = url,
+                    Protocol = MediaProtocol.Http,
+                    Id = itemId,
+                }
+            };
+        }
+
+        /// <summary>
+        /// Gets the recording image URL.
+        /// </summary>
+        /// <param name="recordingId">The recording id.</param>
+        /// <returns></returns>
         public string GetRecordingImageUrl(String recordingId)
         {
-            return GetUrl("ExtractImage?type={0}&provider={1}&position={2}&itemid={3}",
+            return GetUrl(_streamingEndpoint, "ExtractImage?type={0}&provider={1}&position={2}&itemid={3}",
                 WebMediaType.Recording,
                 0,
-                300,
+                Configuration.PreviewThumbnailOffsetMinutes * 60,
                 recordingId);
         }
 
+        /// <summary>
+        /// Gets the channel logo URL.
+        /// </summary>
+        /// <param name="channelId">The channel id.</param>
+        /// <returns></returns>
         public String GetChannelLogoUrl(int channelId)
         {
-            return GetUrl("GetArtworkResized?channelId={0}&artworktype={1}&offset=0&mediatype={2}&maxWidth=160&maxHeight=160",
+            return GetUrl(_streamingEndpoint, "GetArtworkResized?channelId={0}&artworktype={1}&offset=0&mediatype={2}&maxWidth=160&maxHeight=160",
                     channelId, (Int32)WebFileType.Logo, (Int32)WebMediaType.TV);
         }
     }

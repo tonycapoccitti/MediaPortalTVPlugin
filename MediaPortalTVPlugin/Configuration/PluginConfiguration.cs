@@ -13,17 +13,25 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
         /// </summary>
         public PluginConfiguration()
         {
+            ApiHostName = "localhost";
             ApiPortNumber = 4322;
             LiveStreamingProfileName = "Direct";
+            PreRecordPaddingInSecs = 2;
+            PostRecordPaddingInSecs = 3;
+            PreviewThumbnailOffsetMinutes = 5;
         }
 
         public string ApiHostName { get; set; }
         public Int32 ApiPortNumber { get; set; }
+        
         public bool RequiresAuthentication { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+        
         public Int32 PreRecordPaddingInSecs { get; set; }
         public Int32 PostRecordPaddingInSecs { get; set; }
+        public Int32 PreviewThumbnailOffsetMinutes { get; set; }
+
         public String LiveStreamingProfileName { get; set; }
 
         public ValidationResult Validate()

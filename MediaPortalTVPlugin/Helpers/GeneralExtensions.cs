@@ -87,5 +87,29 @@ namespace MediaBrowser.Plugins.MediaPortal.Helpers
         {
             return source.Select(func).Where(result => result != null);
         }
+
+        /// <summary>
+        /// Rounds up.
+        /// </summary>
+        /// <param name="time">The time.</param>
+        /// <param name="interval">The interval.</param>
+        /// <returns></returns>
+        public static TimeSpan RoundUp(this TimeSpan time, TimeSpan interval)
+        {
+            Int64 remainder;
+            Math.DivRem(time.Ticks, interval.Ticks, out remainder);
+
+            if (remainder == 0)
+            {
+                return time;
+            }
+
+            return TimeSpan.FromTicks(((time.Ticks + interval.Ticks + 1) / interval.Ticks) * interval.Ticks);
+        }
+
+        public static Int64 RoundUpMinutes(this TimeSpan time)
+        {
+            return (Int64)time.RoundUp(TimeSpan.FromMinutes(1)).TotalMinutes;
+        }
     }
 }

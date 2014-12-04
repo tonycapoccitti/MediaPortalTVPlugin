@@ -1,13 +1,18 @@
 Outstandings Tasks
 
- - Test Live TV and Recording Streaming
- - Round UP the pre / post padding seconds - minute conversion
- - Add configuration Combo for streaming profiles to configuration page
+ - Investigate the hour offset in the guide
+ - Check the authentication exception calling services with invalid credentials
+ - Add check calling to streaming service
  - Add configuration for the channel / TV images size
- - Add configuration for the position to take the recording image from.
- - Fix channel logo
+
+ - Test configuration Combo for streaming profiles to configuration page
+ - Test configuration for the position to take the recording image from.
+ - Test channel logo fix
+ - Test Live TV and Recording Streaming
+ - Test Round UP the pre / post padding seconds - minute conversion
 
 Unsupported:
+
  - Picking individual days for a series schedule (if more than one day is specifed and it is not Monday - Friday or Saturday - Sunday, we opt for recording everyday)
  - Recording Only New Programs
  - Setting the "Is" properties on the programs (IsMovie etc)

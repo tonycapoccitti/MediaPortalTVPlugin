@@ -12,18 +12,14 @@
 
                     <ul class="ulForm" data-role="listview">
                         <li>
-                            <label for="txtApiHostName">
-                                API Host Name:
-                            </label>
+                            <label for="txtApiHostName">API Host Name:</label>
                             <input id="txtApiHostName" name="txtApiHostName" />
                             <div class="fieldDescription">
                                 The host name (address) of the MP Extended Service
                             </div>
                         </li>
                         <li>
-                            <label for="txtApiPortNumber">
-                                API Port Number:
-                            </label>
+                            <label for="txtApiPortNumber">API Port Number:</label>
                             <input id="txtApiPortNumber" name="txtApiPortNumber" />
                             <div class="fieldDescription">
                                 The port number of the MP Extended Service
@@ -34,21 +30,40 @@
                             <input type="checkbox" id="chkRequiresAuthentication" data-mini="true" />
                         </li>
                         <li>
-                            <label for="txtUserName">
-                                UserName:
-                            </label>
+                            <label for="txtUserName">UserName:</label>
                             <input id="txtUserName" name="txtUserName" />
                             <div class="fieldDescription">
                                 The username specified in MPExtended - Authentication
                             </div>
                         </li>
                         <li>
-                            <label for="txtPassword">
-                                Password:
-                            </label>
+                            <label for="txtPassword">Password:</label>
                             <input id="txtPassword" name="txtPassword" />
                             <div class="fieldDescription">
                                 The password specified in MPExtended - Authentication
+                            </div>
+                        </li>
+                        <li>
+                            <label for="txtPassword">Password:</label>
+                            <input id="txtPassword" name="txtPassword" />
+                            <div class="fieldDescription">
+                                The password specified in MPExtended - Authentication
+                            </div>
+                        </li>
+                        
+                        <li>
+                            <label for="selectProfile">Streaming Profiles:</label>
+                            <select id="selectProfile" data-mini="true"></select>
+                            <div class="fieldDescription">
+                                Select the profile to use for streaming (Direct is recommended)
+                            </div>
+                        </li>
+
+                        <li>
+                            <label for="txtThumbnailOffset">Thumbnail Offset (Mins):</label>
+                            <input id="txtThumbnailOffset" name="txtThumbnailOffset" />
+                            <div class="fieldDescription">
+                                The number of minutes into a programme to capture the screen grab for display
                             </div>
                         </li>
                         <li>
@@ -96,6 +111,18 @@
                     $('#chkRequiresAuthentication', page).checked(config.RequiresAuthentication || false).checkboxradio("refresh");
                     $('#txtUserName', page).val(config.UserName);
                     $('#txtPassword', page).val(config.Password);
+                    $('#txtThumbnailOffset', page).val(config.PreviewThumbnailOffsetMinutes);
+
+                    // load in the profiles
+                    $.ajax({
+                        type: "GET",
+                        url: ApiClient.getUrl("MediaPortalPlugin/Profiles"),
+                        dataType: "json"
+                    }).done(function (profiles) {
+                        $('#selectUser', page).html(profiles.map(function (profile) {
+                            return '<option value="' + profile + '">' + profile + '</option>';
+                        })).selectmenu('refresh').trigger('change');
+                    });
 
                     Dashboard.hideLoadingMsg();
                 });
@@ -114,6 +141,7 @@
                     config.RequiresAuthentication = $('#chkRequiresAuthentication', form).checked();
                     config.UserName = $('#txtUserName', form).val();
                     config.Password = $('#txtPassword', form).val();
+                    config.PreviewThumbnailOffsetMinutes = $('#txtThumbnailOffset', form).val();
 
                     ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
                 });
