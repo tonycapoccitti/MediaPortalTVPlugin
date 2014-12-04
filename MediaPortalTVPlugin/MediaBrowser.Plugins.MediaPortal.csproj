@@ -84,7 +84,7 @@
     <Compile Include="MediaPortal1TVService.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerApiEndPoints.cs" />
+    <Compile Include="ServerApiEndpoints.cs" />
     <Compile Include="Services\Entities\Channel.cs" />
     <Compile Include="Services\Entities\Program.cs" />
     <Compile Include="Services\Entities\Recording.cs" />

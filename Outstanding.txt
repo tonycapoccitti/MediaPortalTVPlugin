@@ -1,10 +1,10 @@
 Outstandings Tasks
 
- - Investigate the hour offset in the guide
+ - Investigate the hour offset issue in the guide
  - Check the authentication exception calling services with invalid credentials
- - Add check calling to streaming service
  - Add configuration for the channel / TV images size
-
+ 
+ - Test check calling to streaming service
  - Test configuration Combo for streaming profiles to configuration page
  - Test configuration for the position to take the recording image from.
  - Test channel logo fix
@@ -41,6 +41,8 @@ Suggestions to MB:
 		.....
 		
  - Add a "Now", "NextDay", "PreviousDay" to the schedule grid
+
+ - Add a resume to playing recordings, passing in the postition tp the recording streaming.
 
  Questions:
 

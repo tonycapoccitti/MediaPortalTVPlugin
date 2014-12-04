@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 
 using MediaBrowser.Controller.Net;
-using MediaBrowser.Plugins.MediaPortal.Services.Entities;
+using MediaBrowser.Plugins.MediaPortal.Services.Exceptions;
 
 using ServiceStack;
 
@@ -22,12 +22,18 @@ namespace MediaBrowser.Plugins.MediaPortal
             List<String> profiles = new List<string>();
             try
             {
-                profiles = Plugin.StreamingProxy.GetTranscoderProfiles(new CancellationToken()).Select(p => p.Name).ToList();
+                profiles =
+                    Plugin.StreamingProxy.GetTranscoderProfiles(new CancellationToken()).Select(p => p.Name).ToList();
+            }
+            catch (ServiceAuthenticationException exception)
+            {
+                // Do nothing, allow an empty list to be passed out
             }
             catch (Exception exception)
             {
-                
+                Plugin.Logger.ErrorException("There was an issue retrieving transcoding profiles", exception);
             }
+
             return profiles;
         }
     }

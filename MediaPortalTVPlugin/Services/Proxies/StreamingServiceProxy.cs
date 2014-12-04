@@ -17,9 +17,11 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
     public class StreamingServiceProxy : ProxyBase
     {
         private readonly INetworkManager _networkManager;
-        private const int STREAM_TIMEOUT_DIRECT = 10;
 
         private String _streamingEndpoint = "StreamingService/stream";
+
+        private const int STREAM_TIMEOUT_DIRECT = 10;
+        private const int STREAM_TV_RECORDING_PROVIDER = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StreamingServiceProxy"/> class.
@@ -33,9 +35,28 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             _networkManager = networkManager;
         }
 
+        /// <summary>
+        /// Gets the end point suffix.
+        /// </summary>
+        /// <value>
+        /// The end point suffix.
+        /// </value>
+        /// <remarks>
+        /// The value appended after "MPExtended" on the service url
+        /// </remarks>
         protected override string EndPointSuffix
         {
             get { return "StreamingService/json"; }
+        }
+
+        /// <summary>
+        /// Gets the status information for the Streaming service
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public ServiceDescription GetStatusInfo(CancellationToken cancellationToken)
+        {
+            return GetFromService<ServiceDescription>(cancellationToken, "GetServiceDescription");
         }
 
         /// <summary>
@@ -108,7 +129,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             var isStreamInitialised = GetFromService<WebBoolResult>(cancellationToken,
                     "InitStream?type={0}&provider={1}&itemId={2}&identifier={3}&idleTimeout={4}&clientDescription={5}",
                     webMediaType,
-                    0, // Provider - use 0 for recordings and tv
+                    STREAM_TV_RECORDING_PROVIDER, // Provider - use 0 for recordings and tv
                     itemId, // itemId
                     identifier, // identifier
                     STREAM_TIMEOUT_DIRECT,
@@ -158,11 +179,11 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         /// </summary>
         /// <param name="recordingId">The recording id.</param>
         /// <returns></returns>
-        public string GetRecordingImageUrl(String recordingId)
+        public String GetRecordingImageUrl(String recordingId)
         {
             return GetUrl(_streamingEndpoint, "ExtractImage?type={0}&provider={1}&position={2}&itemid={3}",
                 WebMediaType.Recording,
-                0,
+                STREAM_TV_RECORDING_PROVIDER,
                 Configuration.PreviewThumbnailOffsetMinutes * 60,
                 recordingId);
         }

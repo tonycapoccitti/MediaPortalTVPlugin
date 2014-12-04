@@ -117,9 +117,11 @@ namespace MediaBrowser.Plugins.MediaPortal
             {
                 try
                 {
-                    // Connect to TAS
-                    var response = Plugin.TvProxy.GetStatusInfo(cancellationToken);
 
+                    // Test connections to both the streaming and tv proxy
+                    var response = Plugin.StreamingProxy.GetStatusInfo(cancellationToken);
+                    response = Plugin.TvProxy.GetStatusInfo(cancellationToken);
+                    
                     result = new LiveTvServiceStatusInfo()
                     {
                         HasUpdateAvailable = false,
