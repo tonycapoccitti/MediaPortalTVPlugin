@@ -1,7 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaBrowser.Common.Net;
+using MediaBrowser.Model.Net;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Plugins.MediaPortal.Configuration;
 using MediaBrowser.Plugins.MediaPortal.Services.Exceptions;
@@ -80,18 +85,24 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         protected TResult GetFromService<TResult>(CancellationToken cancellationToken, String action, params object[] args)
         {
             var request = CreateRequest(cancellationToken, action, args);
+            Task<Stream> task;
             try
             {
-                var task = HttpClient.Get(request);
+                task = HttpClient.Get(request);
                 using (var stream = task.Result)
                 {
                     return Serialiser.DeserializeFromStream<TResult>(stream);
                 }
             }
-            catch (Exception exception)
+            catch (AggregateException aggregateException)
             {
-                // TODO: Check which exception occurs when authentication fails and catch that specifically
-                throw new ServiceAuthenticationException("There was a problem authenticating with the MP service", exception);
+                var exception = aggregateException.Flatten().InnerExceptions.OfType<HttpException>().FirstOrDefault();
+                if (exception != null && exception.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new ServiceAuthenticationException("There was a problem authenticating with the MP service", exception);    
+                }
+
+                throw;
             }
         }
 

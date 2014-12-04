@@ -19,13 +19,12 @@ namespace MediaBrowser.Plugins.MediaPortal
     {
         public object Get(GetProfiles request)
         {
-            List<String> profiles = new List<string>();
+            var profiles = new List<string>();
             try
             {
-                profiles =
-                    Plugin.StreamingProxy.GetTranscoderProfiles(new CancellationToken()).Select(p => p.Name).ToList();
+                profiles = Plugin.StreamingProxy.GetTranscoderProfiles(new CancellationToken()).Select(p => p.Name).ToList();
             }
-            catch (ServiceAuthenticationException exception)
+            catch (ServiceAuthenticationException)
             {
                 // Do nothing, allow an empty list to be passed out
             }

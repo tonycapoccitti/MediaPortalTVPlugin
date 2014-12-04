@@ -118,11 +118,11 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         {
             var profile = GetTranscoderProfile(cancellationToken, "Direct");
 
-            // var profile = GetTranscoderProfile(cancellationToken, Configuration.LiveStreamingProfileName);
+            // var profile = GetTranscoderProfile(cancellationToken, Configuration.StreamingProfileName);
             if (profile == null)
             {
                 throw new Exception(String.Format("Cannot find a profile with the name {0}",
-                    Configuration.LiveStreamingProfileName));
+                    Configuration.StreamingProfileName));
             }
 
             var identifier = HttpUtility.UrlEncode(String.Format("{0}-{1}-{2:yyyyMMddHHmmss}", webMediaType, itemId, DateTime.UtcNow));
@@ -195,7 +195,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         /// <returns></returns>
         public String GetChannelLogoUrl(int channelId)
         {
-            return GetUrl(_streamingEndpoint, "GetArtworkResized?channelId={0}&artworktype={1}&offset=0&mediatype={2}&maxWidth=160&maxHeight=160",
+            return GetUrl(_streamingEndpoint, "GetArtworkResized?id={0}&artworktype={1}&offset=0&mediatype={2}&maxWidth=160&maxHeight=160",
                     channelId, (Int32)WebFileType.Logo, (Int32)WebMediaType.TV);
         }
     }

@@ -44,21 +44,12 @@
                             </div>
                         </li>
                         <li>
-                            <label for="txtPassword">Password:</label>
-                            <input id="txtPassword" name="txtPassword" />
-                            <div class="fieldDescription">
-                                The password specified in MPExtended - Authentication
-                            </div>
-                        </li>
-                        
-                        <li>
                             <label for="selectProfile">Streaming Profiles:</label>
                             <select id="selectProfile" data-mini="true"></select>
                             <div class="fieldDescription">
                                 Select the profile to use for streaming (Direct is recommended)
                             </div>
                         </li>
-
                         <li>
                             <label for="txtThumbnailOffset">Thumbnail Offset (Mins):</label>
                             <input id="txtThumbnailOffset" name="txtThumbnailOffset" />
@@ -119,10 +110,12 @@
                         url: ApiClient.getUrl("MediaPortalPlugin/Profiles"),
                         dataType: "json"
                     }).done(function (profiles) {
-                        $('#selectUser', page).html(profiles.map(function (profile) {
+                        $('#selectProfile', page).html(profiles.map(function (profile) {
                             return '<option value="' + profile + '">' + profile + '</option>';
                         })).selectmenu('refresh').trigger('change');
                     });
+
+                    $('#selectProfile', page).val(config.StreamingProfileName);
 
                     Dashboard.hideLoadingMsg();
                 });
@@ -142,6 +135,7 @@
                     config.UserName = $('#txtUserName', form).val();
                     config.Password = $('#txtPassword', form).val();
                     config.PreviewThumbnailOffsetMinutes = $('#txtThumbnailOffset', form).val();
+                    config.StreamingProfileName = $('#selectProfile', form).val();
 
                     ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
                 });

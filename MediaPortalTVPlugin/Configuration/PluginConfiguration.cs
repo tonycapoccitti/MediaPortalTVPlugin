@@ -15,7 +15,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
         {
             ApiHostName = "localhost";
             ApiPortNumber = 4322;
-            LiveStreamingProfileName = "Direct";
+            StreamingProfileName = "Direct";
             PreRecordPaddingInSecs = 2;
             PostRecordPaddingInSecs = 3;
             PreviewThumbnailOffsetMinutes = 5;
@@ -32,7 +32,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
         public Int32 PostRecordPaddingInSecs { get; set; }
         public Int32 PreviewThumbnailOffsetMinutes { get; set; }
 
-        public String LiveStreamingProfileName { get; set; }
+        public String StreamingProfileName { get; set; }
 
         public ValidationResult Validate()
         {

@@ -1,14 +1,8 @@
 Outstandings Tasks
 
- - Investigate the hour offset issue in the guide
- - Check the authentication exception calling services with invalid credentials
  - Add configuration for the channel / TV images size
+ - Fix reading out the streaming profile into the config select
  
- - Test check calling to streaming service
- - Test configuration Combo for streaming profiles to configuration page
- - Test configuration for the position to take the recording image from.
- - Test channel logo fix
- - Test Live TV and Recording Streaming
  - Test Round UP the pre / post padding seconds - minute conversion
 
 Unsupported:
