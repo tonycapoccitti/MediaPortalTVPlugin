@@ -1,4 +1,4 @@
-An MB3 Live TV Plugin for Media Portal V1
+<strong>An MB3 Live TV Plugin for Media Portal V1</strong>
 
 This has been tested with MB3 Server Version 3.0.5451.540 and MP Version 1.8.0. You may have to wait for the next release of MB3 before using this plugin.
 
