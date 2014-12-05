@@ -41,10 +41,20 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             return GetFromService<ServiceDescription>(cancellationToken, "GetServiceDescription");
         }
 
+        public List<ChannelGroup> GetChannelGroups(CancellationToken cancellationToken)
+        {
+            return GetFromService<List<ChannelGroup>>(cancellationToken, "GetGroups").OrderBy(g => g.SortOrder).ToList();
+        }
+        
         public IEnumerable<ChannelInfo> GetChannels(CancellationToken cancellationToken)
         {
-            var response = GetFromService<List<Channel>>(cancellationToken, "GetChannelsDetailed");
+            var builder = new StringBuilder("GetChannelsDetailed");
+            if (Configuration.DefaultChannelGroup.HasValue)
+            {
+                builder.AppendFormat("?groupId={0}", Configuration.DefaultChannelGroup.Value);
+            }
 
+            var response = GetFromService<List<Channel>>(cancellationToken, builder.ToString());
             return response.Where(c => c.VisibleInGuide).Select(c => new ChannelInfo()
             {
                 Id = c.Id.ToString(CultureInfo.InvariantCulture),
@@ -76,7 +86,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                     Genres = new List<String>(),
                     Id = p.Id.ToString(CultureInfo.InvariantCulture),
                     IsMovie = false,
-                    IsSeries = !String.IsNullOrEmpty(p.SeriesNum),
+                    IsSeries = !String.IsNullOrEmpty(p.SeriesNum), // TODO: Maybe look at the Episodexxxx details
                     Name = p.Title,
                     Overview = p.Description,
                     OriginalAirDate = p.OriginalAirDate
@@ -85,6 +95,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 if (!String.IsNullOrEmpty(p.Genre))
                 {
                     program.Genres.Add(p.Genre);
+                    program.IsMovie = p.Genre == "Film" || p.Genre == "Movie"; // HACK: Replace with a lookup in the MPGenres
                 }
 
                 return program;
@@ -151,7 +162,6 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             return recording;
         }
 
-
         public IEnumerable<SeriesTimerInfo> GetSeriesSchedules(CancellationToken cancellationToken)
         {
             var response = GetFromService<List<Schedule>>(cancellationToken, "GetSchedules");
@@ -181,7 +191,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
         private void UpdateScheduling(SeriesTimerInfo seriesTimerInfo, Schedule schedule)
         {
-            var schedulingType = (ScheduleType)schedule.ScheduleType;
+            var schedulingType = (WebScheduleType)schedule.ScheduleType;
 
             // Initialise
             seriesTimerInfo.Days = new List<DayOfWeek>();
@@ -191,23 +201,23 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
             switch (schedulingType)
             {
-                case ScheduleType.EveryTimeOnThisChannel:
-                case ScheduleType.EveryTimeOnEveryChannel:
-                    seriesTimerInfo.RecordAnyTime = schedulingType == ScheduleType.EveryTimeOnThisChannel;
-                    seriesTimerInfo.RecordAnyChannel = schedulingType == ScheduleType.EveryTimeOnEveryChannel;
+                case WebScheduleType.EveryTimeOnThisChannel:
+                case WebScheduleType.EveryTimeOnEveryChannel:
+                    seriesTimerInfo.RecordAnyTime = schedulingType == WebScheduleType.EveryTimeOnThisChannel;
+                    seriesTimerInfo.RecordAnyChannel = schedulingType == WebScheduleType.EveryTimeOnEveryChannel;
                     break;
 
-                case ScheduleType.Daily:
-                case ScheduleType.WorkingDays:
-                case ScheduleType.Weekends:
-                case ScheduleType.Weekly:
+                case WebScheduleType.Daily:
+                case WebScheduleType.WorkingDays:
+                case WebScheduleType.Weekends:
+                case WebScheduleType.Weekly:
 
-                    if (schedulingType == ScheduleType.Weekly)
+                    if (schedulingType == WebScheduleType.Weekly)
                     {
                         seriesTimerInfo.Days.Add(schedule.StartTime.DayOfWeek);
                     }
 
-                    if (schedulingType == ScheduleType.Daily || schedulingType == ScheduleType.WorkingDays)
+                    if (schedulingType == WebScheduleType.Daily || schedulingType == WebScheduleType.WorkingDays)
                     {
                         seriesTimerInfo.Days.AddRange(new[]
                         {
@@ -219,7 +229,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                         });
                     }
 
-                    if (schedulingType == ScheduleType.Daily || schedulingType == ScheduleType.Weekends)
+                    if (schedulingType == WebScheduleType.Daily || schedulingType == WebScheduleType.Weekends)
                     {
                         seriesTimerInfo.Days.AddRange(new[]
                         {
@@ -307,7 +317,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             builder.AppendFormat("title={0}&", timer.Name);
             builder.AppendFormat("starttime={0}&", timer.StartDate.ToUrlDate());
             builder.AppendFormat("endtime={0}&", timer.EndDate.ToUrlDate());
-            builder.AppendFormat("scheduletype={0}&", (Int32)ScheduleType.Once);
+            builder.AppendFormat("scheduletype={0}&", (Int32)WebScheduleType.Once);
 
             if (timer.IsPrePaddingRequired & timer.PrePaddingSeconds > 0)
             {
@@ -365,6 +375,37 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 }
             }
 
+        }
+
+        #endregion
+
+        #region Other Methods
+
+        public ScheduleDefaults GetScheduleDefaults(CancellationToken cancellationToken)
+        {
+            Int32 preRecordSecs;
+            Int32 postRecordSecs;
+
+            if (!Int32.TryParse(ReadSettingFromDatabase(cancellationToken, "preRecordInterval"), out preRecordSecs))
+            {
+                Plugin.Logger.Warn("Unable to read the setting 'preRecordInterval' from MP");
+            }
+
+            if (!Int32.TryParse(ReadSettingFromDatabase(cancellationToken, "postRecordInterval"), out postRecordSecs))
+            {
+                Plugin.Logger.Warn("Unable to read the setting 'postRecordInterval' from MP");
+            }
+
+            return new ScheduleDefaults()
+            {
+                PreRecordInterval = TimeSpan.FromMinutes(preRecordSecs),
+                PostRecordInterval = TimeSpan.FromMinutes(postRecordSecs),
+            };
+        }
+
+        public String ReadSettingFromDatabase(CancellationToken cancellationToken, String name)
+        {
+            return GetFromService<WebStringResult>(cancellationToken, "ReadSettingFromDatabase?tagName={0}", name).Result;
         }
 
         #endregion

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MediaBrowser.Controller.LiveTv;
-using MediaBrowser.Plugins.MediaPortal.Entities;
+using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal.Helpers
 {
@@ -41,46 +41,46 @@ namespace MediaBrowser.Plugins.MediaPortal.Helpers
                    value.Contains(DayOfWeek.Sunday);
         }
 
-        public static ScheduleType ToScheduleType(this SeriesTimerInfo info)
+        public static WebScheduleType ToScheduleType(this SeriesTimerInfo info)
         {
             if (info.RecordAnyChannel)
             {
-                return ScheduleType.EveryTimeOnEveryChannel;
+                return WebScheduleType.EveryTimeOnEveryChannel;
             }
 
             if (info.RecordAnyTime)
             {
-                return ScheduleType.EveryTimeOnThisChannel;
+                return WebScheduleType.EveryTimeOnThisChannel;
             }
 
             if (info.Days.Count == 0)
             {
-                return ScheduleType.Once;
+                return WebScheduleType.Once;
             }
 
             if (info.Days.Count == 1)
             {
-                return ScheduleType.Weekly;
+                return WebScheduleType.Weekly;
             }
 
             if (info.Days.IsDaily())
             {
-                return ScheduleType.Daily;
+                return WebScheduleType.Daily;
             }         
 
             if (info.Days.IsWeekends())
             {
-                return ScheduleType.Weekends;
+                return WebScheduleType.Weekends;
             }
 
             if (info.Days.IsWorkingDays())
             {
-                return ScheduleType.WorkingDays;
+                return WebScheduleType.WorkingDays;
             }
 
             // if we get here, then the user specified options that are not supported
             // by MP - so specify daily
-            return ScheduleType.Daily;
+            return WebScheduleType.Daily;
         }
 
         public static IEnumerable<TResult> Process<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> func) where TResult : class

@@ -1,14 +1,14 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+
 using MediaBrowser.Common.Net;
 using MediaBrowser.Model.Net;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Plugins.MediaPortal.Configuration;
+using MediaBrowser.Plugins.MediaPortal.Interfaces;
 using MediaBrowser.Plugins.MediaPortal.Services.Exceptions;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
@@ -39,6 +39,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
         protected IHttpClient HttpClient { get; private set; }
         public IJsonSerializer Serialiser { get; private set; }
+        public IPluginLogger Logger { get; set; }
 
         /// <summary>
         /// Gets the end point suffix.
@@ -85,10 +86,9 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         protected TResult GetFromService<TResult>(CancellationToken cancellationToken, String action, params object[] args)
         {
             var request = CreateRequest(cancellationToken, action, args);
-            Task<Stream> task;
             try
             {
-                task = HttpClient.Get(request);
+                var task = HttpClient.Get(request);
                 using (var stream = task.Result)
                 {
                     return Serialiser.DeserializeFromStream<TResult>(stream);

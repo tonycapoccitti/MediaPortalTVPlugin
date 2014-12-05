@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Web;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.Channels;
 using MediaBrowser.Model.MediaInfo;
 using MediaBrowser.Model.Serialization;
-using MediaBrowser.Plugins.MediaPortal.Entities;
 using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
@@ -103,6 +103,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             return GetStream(cancellationToken, WebMediaType.TV, channelId, TimeSpan.Zero);
         }
 
+        
         /// <summary>
         /// Cancels an executing stream.
         /// </summary>
@@ -114,15 +115,26 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             return GetFromService<WebBoolResult>(cancellationToken, "StopStream?identifier={0}", streamIdentifier).Result;
         }
 
+        /// <summary>
+        /// Retrieves media information from an established stream.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="mediaType">Type of the media.</param>
+        /// <param name="streamIdentifier">The stream identifier.</param>
+        /// <returns></returns>
+        private WebMediaInfo GetMediaInfoFromStream(CancellationToken cancellationToken, WebMediaType mediaType, String streamIdentifier)
+        {
+            return GetFromService<WebMediaInfo>(cancellationToken, "GetMediaInfo?type={0}&itemId={1}", mediaType, streamIdentifier);
+        }
+
         private StreamingDetails GetStream(CancellationToken cancellationToken, WebMediaType webMediaType, string itemId, TimeSpan startPosition)
         {
-            var profile = GetTranscoderProfile(cancellationToken, "Direct");
+            // var profile = GetTranscoderProfile(cancellationToken, "Direct");
 
-            // var profile = GetTranscoderProfile(cancellationToken, Configuration.StreamingProfileName);
+            var profile = GetTranscoderProfile(cancellationToken, Configuration.StreamingProfileName);
             if (profile == null)
             {
-                throw new Exception(String.Format("Cannot find a profile with the name {0}",
-                    Configuration.StreamingProfileName));
+                throw new Exception(String.Format("Cannot find a profile with the name {0}", Configuration.StreamingProfileName));
             }
 
             var identifier = HttpUtility.UrlEncode(String.Format("{0}-{1}-{2:yyyyMMddHHmmss}", webMediaType, itemId, DateTime.UtcNow));
@@ -141,28 +153,24 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             }
 
             // Returns the url for streaming
-            var url =
-                GetFromService<WebStringResult>(cancellationToken,
-                    "StartStream?identifier={0}&profileName={1}&startPosition={2}",
+            var url = GetFromService<WebStringResult>(cancellationToken,"StartStream?identifier={0}&profileName={1}&startPosition={2}",
                     identifier,
                     profile.Name, // Provider
                     (Int32)startPosition.TotalSeconds).Result;
 
-            Boolean isAuthorised = true;
+            var isAuthorised = true;
             foreach (var ipAddress in _networkManager.GetLocalIpAddresses())
             {
                 isAuthorised = isAuthorised && GetFromService<WebBoolResult>(
                     cancellationToken, "AuthorizeRemoteHostForStreaming?host={0}", ipAddress).Result;
             }
 
-            // var isAuthorisedForStreaming = GetFromService<WebBoolResult>(cancellationToken, "AuthorizeStreaming").Result;
-
             if (!isAuthorised)
             {
                 throw new Exception(String.Format("Could not authorise the stream. Identifier={0}", identifier));
             }
 
-            return new StreamingDetails()
+            var streamingDetails = new StreamingDetails()
             {
                 StreamIdentifier = identifier,
                 StreamInfo = new ChannelMediaInfo()
@@ -172,6 +180,30 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                     Id = itemId,
                 }
             };
+
+            var mediaInfo = GetMediaInfoFromStream(cancellationToken, webMediaType, identifier);
+            if (mediaInfo != null)
+            {
+                streamingDetails.StreamInfo.Container = mediaInfo.Container;
+                streamingDetails.StreamInfo.RunTimeTicks = TimeSpan.FromSeconds(mediaInfo.Duration).Ticks;
+                streamingDetails.StreamInfo.AudioChannels = mediaInfo.AudioStreams.Count;
+
+                var defaultAudioStream = mediaInfo.AudioStreams.FirstOrDefault();
+                if (defaultAudioStream != null)
+                {
+                    streamingDetails.StreamInfo.AudioCodec = defaultAudioStream.Codec;
+                }
+
+                var defaultVideoStream = mediaInfo.VideoStreams.FirstOrDefault();
+                if (defaultVideoStream != null)
+                {
+                    streamingDetails.StreamInfo.VideoCodec = defaultVideoStream.Codec;
+                    streamingDetails.StreamInfo.Height = defaultVideoStream.Height;
+                    streamingDetails.StreamInfo.Width = defaultVideoStream.Width;
+                }
+            }
+
+            return streamingDetails;
         }
 
         /// <summary>

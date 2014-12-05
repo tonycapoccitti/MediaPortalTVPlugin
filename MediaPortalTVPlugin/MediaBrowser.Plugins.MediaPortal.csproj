@@ -69,13 +69,16 @@
   <ItemGroup>
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Configuration\MediaPortalConfigurationPage.cs" />
-    <Compile Include="Entities\ScheduleType.cs">
+    <Compile Include="Entities\ScheduleDefaults.cs" />
+    <Compile Include="Services\Entities\WebMediaInfo.cs" />
+    <Compile Include="Services\Entities\WebScheduleType.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Entities\WebContentType.cs">
+    <Compile Include="Services\Entities\ChannelGroup.cs" />
+    <Compile Include="Services\Entities\WebContentType.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Entities\WebMediaType.cs">
+    <Compile Include="Services\Entities\WebMediaType.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\GeneralExtensions.cs" />

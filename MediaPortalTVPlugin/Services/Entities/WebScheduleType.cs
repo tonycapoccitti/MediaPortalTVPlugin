@@ -1,6 +1,6 @@
-﻿namespace MediaBrowser.Plugins.MediaPortal.Entities
+﻿namespace MediaBrowser.Plugins.MediaPortal.Services.Entities
 {
-    public enum ScheduleType
+    public enum WebScheduleType
     {
         Once = 0,
         Daily = 1,

@@ -64,14 +64,13 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task<SeriesTimerInfo> GetNewTimerDefaultsAsync(CancellationToken cancellationToken, ProgramInfo program = null)
         {
-            var configuration = Plugin.Instance.Configuration;
-            
+            var scheduleDefaults = Plugin.TvProxy.GetScheduleDefaults(cancellationToken);
             return Task.FromResult(new SeriesTimerInfo()
             {
-                IsPostPaddingRequired = configuration.PostRecordPaddingInSecs > 0,
-                IsPrePaddingRequired = configuration.PreRecordPaddingInSecs > 0,
-                PostPaddingSeconds = configuration.PostRecordPaddingInSecs,
-                PrePaddingSeconds = configuration.PreRecordPaddingInSecs,
+                IsPostPaddingRequired = scheduleDefaults.PostRecordInterval.Ticks > 0,
+                IsPrePaddingRequired = scheduleDefaults.PreRecordInterval.Ticks > 0,
+                PostPaddingSeconds = (Int32)scheduleDefaults.PostRecordInterval.TotalSeconds,
+                PrePaddingSeconds = (Int32)scheduleDefaults.PreRecordInterval.TotalSeconds,
             });
         }
 
