@@ -1,3 +1,7 @@
+An MB3 Live TV Plugin for Media Portal V1
+
+This has been tested with MB3 Server Version 3.0.5451.540 and MP Version 1.8.0. You may have to wait for the next release of MB3 before using this plugin.
+
 <p>This has a prerequisite of installing MPExtended on the box that hosts MediaPortal. Both v0.5.4 and v0.6 are supported - however running v0.5.4 does not allow recordings to be deleted. However v0.6 does, so download and install from here:</p>
 
 <ul>
