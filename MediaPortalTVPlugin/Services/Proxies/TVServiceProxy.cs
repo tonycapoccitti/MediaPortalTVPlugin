@@ -41,6 +41,16 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             return GetFromService<ServiceDescription>(cancellationToken, "GetServiceDescription");
         }
 
+        public List<TunerCard> GetTunerCards(CancellationToken cancellationToken)
+        {
+            return GetFromService<List<TunerCard>>(cancellationToken, "GetCards");
+        }
+
+        public List<ActiveTunerCard> GetActiveCards(CancellationToken cancellationToken)
+        {
+            return GetFromService<List<ActiveTunerCard>>(cancellationToken, "GetActiveCards");
+        }
+
         public List<ChannelGroup> GetChannelGroups(CancellationToken cancellationToken)
         {
             return GetFromService<List<ChannelGroup>>(cancellationToken, "GetGroups").OrderBy(g => g.SortOrder).ToList();
@@ -86,10 +96,10 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                     Genres = new List<String>(),
                     Id = p.Id.ToString(CultureInfo.InvariantCulture),
                     IsMovie = false,
-                    IsSeries = !String.IsNullOrEmpty(p.SeriesNum), // TODO: Maybe look at the Episodexxxx details
+                    IsSeries = !String.IsNullOrEmpty(p.SeriesNum) || !String.IsNullOrEmpty(p.EpisodeNum),
                     Name = p.Title,
                     Overview = p.Description,
-                    OriginalAirDate = p.OriginalAirDate
+                    // OriginalAirDate = p.OriginalAirDate
                 };
                 
                 if (!String.IsNullOrEmpty(p.Genre))

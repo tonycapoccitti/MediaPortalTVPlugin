@@ -70,6 +70,9 @@
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Configuration\MediaPortalConfigurationPage.cs" />
     <Compile Include="Entities\ScheduleDefaults.cs" />
+    <Compile Include="Services\Entities\ActiveTunerCard.cs" />
+    <Compile Include="Services\Entities\TunerCard.cs" />
+    <Compile Include="Services\Entities\User.cs" />
     <Compile Include="Services\Entities\WebMediaInfo.cs" />
     <Compile Include="Services\Entities\WebScheduleType.cs">
       <SubType>Code</SubType>
@@ -95,6 +98,8 @@
     <Compile Include="Services\Entities\ServiceDescription.cs" />
     <Compile Include="Services\Entities\StreamingDetails.cs" />
     <Compile Include="Services\Entities\WebBoolResult.cs" />
+    <Compile Include="Services\Entities\WebSortField.cs" />
+    <Compile Include="Services\Entities\WebSortOrder.cs" />
     <Compile Include="Services\Entities\WebStringResult.cs" />
     <Compile Include="Services\Exceptions\ServiceAuthenticationException.cs" />
     <Compile Include="Services\Proxies\ProxyBase.cs" />

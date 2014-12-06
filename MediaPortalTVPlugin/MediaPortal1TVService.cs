@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using MediaBrowser.Controller.Channels;
 using MediaBrowser.Controller.Drawing;
 using MediaBrowser.Controller.LiveTv;
+using MediaBrowser.Model.LiveTv;
 using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal
@@ -120,15 +123,37 @@ namespace MediaBrowser.Plugins.MediaPortal
                     // Test connections to both the streaming and tv proxy
                     var response = Plugin.StreamingProxy.GetStatusInfo(cancellationToken);
                     response = Plugin.TvProxy.GetStatusInfo(cancellationToken);
-                    
+
+                    var activeCards = Plugin.TvProxy.GetActiveCards(cancellationToken);
+                    var cards = Plugin.TvProxy.GetTunerCards(cancellationToken).Where(c => c.Enabled).Select(c =>
+                    {
+                        var activeDetails = activeCards.SingleOrDefault(ac => ac.Id == c.Id);
+                        var tunerInfo = new LiveTvTunerInfo()
+                        {
+                            Id = c.Id.ToString(CultureInfo.InvariantCulture),
+                            Name = c.Name,
+                        };
+
+                        if (activeDetails != null)
+                        {
+                            tunerInfo.Clients = new List<string>() { activeDetails.User.Name };
+                            tunerInfo.Status = 
+                                activeDetails.IsRecording ? LiveTvTunerStatus.RecordingTv :
+                                activeDetails.IsTunerLocked ? LiveTvTunerStatus.LiveTv : LiveTvTunerStatus.Available;
+                        }
+                        return tunerInfo;
+
+                    }).ToList();
+
                     result = new LiveTvServiceStatusInfo()
                     {
                         HasUpdateAvailable = false,
-                        Status = Model.LiveTv.LiveTvServiceStatus.Ok,
+                        Status = LiveTvServiceStatus.Ok,
                         StatusMessage = String.Format("MPExtended Service Version: {0} - API Version : {1}", response.ServiceVersion, response.ApiVersion),
-                        Tuners = new List<LiveTvTunerInfo>(),
-                        Version = "1.0"
+                        Tuners = cards,
+                        Version = response.ServiceVersion
                     };
+
                 }
                 catch (Exception ex)
                 {
@@ -137,7 +162,7 @@ namespace MediaBrowser.Plugins.MediaPortal
                     result = new LiveTvServiceStatusInfo()
                     {
                         HasUpdateAvailable = false,
-                        Status = Model.LiveTv.LiveTvServiceStatus.Unavailable,
+                        Status = LiveTvServiceStatus.Unavailable,
                         StatusMessage = "Unable to establish a connection with MediaPortal API - check your settings",
                         Tuners = new List<LiveTvTunerInfo>(),
                         Version = "1.0"

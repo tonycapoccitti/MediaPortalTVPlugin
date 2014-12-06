@@ -124,7 +124,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         /// <returns></returns>
         private WebMediaInfo GetMediaInfoFromStream(CancellationToken cancellationToken, WebMediaType mediaType, String streamIdentifier)
         {
-            return GetFromService<WebMediaInfo>(cancellationToken, "GetMediaInfo?type={0}&itemId={1}", mediaType, streamIdentifier);
+            return GetFromService<WebMediaInfo>(cancellationToken, "GetMediaInfo?type={0}&itemId={1}&provider={2}",
+                mediaType, streamIdentifier, STREAM_TV_RECORDING_PROVIDER);
         }
 
         private StreamingDetails GetStream(CancellationToken cancellationToken, WebMediaType webMediaType, string itemId, TimeSpan startPosition)
@@ -181,7 +182,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 }
             };
 
-            var mediaInfo = GetMediaInfoFromStream(cancellationToken, webMediaType, identifier);
+            var mediaInfoId = webMediaType == WebMediaType.Recording ? itemId : identifier;
+            var mediaInfo = GetMediaInfoFromStream(cancellationToken, webMediaType, mediaInfoId);
             if (mediaInfo != null)
             {
                 streamingDetails.StreamInfo.Container = mediaInfo.Container;
