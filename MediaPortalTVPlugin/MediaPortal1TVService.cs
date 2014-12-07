@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -102,6 +103,7 @@ namespace MediaBrowser.Plugins.MediaPortal
             LiveTvServiceStatusInfo result;
 
             var configurationValidationResult = Plugin.Instance.Configuration.Validate();
+            var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             // Validate configuration first
             if (!configurationValidationResult.IsValid)
@@ -112,8 +114,8 @@ namespace MediaBrowser.Plugins.MediaPortal
                     Status = Model.LiveTv.LiveTvServiceStatus.Unavailable,
                     StatusMessage = configurationValidationResult.Summary,
                     Tuners = new List<LiveTvTunerInfo>(),
-                    Version = "1.0"
-                };                    
+                    Version = version
+                };
             }
             else
             {
@@ -151,7 +153,7 @@ namespace MediaBrowser.Plugins.MediaPortal
                         Status = LiveTvServiceStatus.Ok,
                         StatusMessage = String.Format("MPExtended Service Version: {0} - API Version : {1}", response.ServiceVersion, response.ApiVersion),
                         Tuners = cards,
-                        Version = response.ServiceVersion
+                        Version = version
                     };
 
                 }
@@ -165,7 +167,7 @@ namespace MediaBrowser.Plugins.MediaPortal
                         Status = LiveTvServiceStatus.Unavailable,
                         StatusMessage = "Unable to establish a connection with MediaPortal API - check your settings",
                         Tuners = new List<LiveTvTunerInfo>(),
-                        Version = "1.0"
+                        Version = version
                     };
                 }
             }

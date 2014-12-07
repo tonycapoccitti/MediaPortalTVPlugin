@@ -118,11 +118,10 @@
                         dataType: "json"
                     }).done(function (profiles) {
                         $('#selectProfile', page).html(profiles.map(function (profile) {
-                            return '<option value="' + profile + '">' + profile + '</option>';
+                            var selectedText = profile == config.StreamingProfileName ? " selected" : "";
+                            return '<option value="' + profile + '"' + selectedText + '>' + profile + '</option>';
                         })).selectmenu('refresh').trigger('change');
                     });
-
-                    $('#selectProfile', page).val(config.StreamingProfileName);
 
                     $.ajax({
                         type: "GET",
@@ -130,11 +129,10 @@
                         dataType: "json"
                     }).done(function (groups) {
                         $('#selectChannelGroup', page).html(groups.map(function (group) {
-                            return '<option value="' + group.Id + '">' + group.GroupName + '</option>';
+                            var selectedText = group.Id == config.DefautChannelGroup ? " selected" : "";
+                            return '<option value="' + group.Id + '"' + selectedText + '>' + group.GroupName + '</option>';
                         })).selectmenu('refresh').trigger('change');
                     });
-
-                    $('#selectChannelGroup', page).val(config.DefaultChannelGroup);
 
                     Dashboard.hideLoadingMsg();
                 });

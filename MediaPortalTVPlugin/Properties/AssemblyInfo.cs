@@ -30,4 +30,23 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("0.1.0.*")]
+
+//// BUild type
+//#if DEBUG
+//[assembly: AssemblyConfiguration("Debug")]
+//#else
+//[assembly: AssemblyConfiguration("Release")]
+//#endif
+
+// This reflects the API version, only update this if the API changes, as dependent applications need to be rebuild when
+// the assembly is replaced with an assembly with a different AssemblyVersion attribute. 
+// [assembly: AssemblyVersion("0.1.0.0")]
+
+// This reflects the version of this unique build, and should be changed with each build. Sadly it's not easily possible
+// to let this change with each build in Visual Studio, so we don't have that in our version numbers now and hope people
+// don't mess around too much with our builds. For stable releases, this is of the format major.minor.bugfix.0. For new 
+// minor versions we use major.prev-minor.99.x, with x incrementing with each alpha/beta/RC release. For test versions of
+// bugfix releases this is major.minor.prev-bugfix.x, with x incrementing with each alpha/beta/RC release. This number
+// is also used to check for new versions in the configurator, so please follow this scheme strictly. 
+//[assembly: AssemblyFileVersion("0.1.0.*")]
