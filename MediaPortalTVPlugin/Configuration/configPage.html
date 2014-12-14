@@ -129,7 +129,7 @@
                         dataType: "json"
                     }).done(function (groups) {
                         $('#selectChannelGroup', page).html(groups.map(function (group) {
-                            var selectedText = group.Id == config.DefautChannelGroup ? " selected" : "";
+                            var selectedText = group.Id == config.DefaultChannelGroup ? " selected" : "";
                             return '<option value="' + group.Id + '"' + selectedText + '>' + group.GroupName + '</option>';
                         })).selectmenu('refresh').trigger('change');
                     });

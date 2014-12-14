@@ -30,7 +30,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
 
         public String StreamingProfileName { get; set; }
 
-        public Int32? DefaultChannelGroup { get; set; }
+        public Int32 DefaultChannelGroup { get; set; }
 
         public ValidationResult Validate()
         {

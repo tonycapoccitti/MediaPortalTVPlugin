@@ -59,9 +59,11 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
         public IEnumerable<ChannelInfo> GetChannels(CancellationToken cancellationToken)
         {
             var builder = new StringBuilder("GetChannelsDetailed");
-            if (Configuration.DefaultChannelGroup.HasValue)
+            if (Configuration.DefaultChannelGroup > 0)
             {
-                builder.AppendFormat("?groupId={0}", Configuration.DefaultChannelGroup.Value);
+                // This is the only way to get out the channels in the same order that MP displays them.
+                // No idea why you sepecify Year as the sort field!
+                builder.AppendFormat("?groupId={0}", Configuration.DefaultChannelGroup);
             }
 
             var response = GetFromService<List<Channel>>(cancellationToken, builder.ToString());
@@ -73,6 +75,11 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 Number = c.ExternalId,
                 ImageUrl = _wssProxy.GetChannelLogoUrl(c.Id)
             });
+        }
+
+        private Program GetProgram(CancellationToken cancellationToken, String programId)
+        {
+            return GetFromService<Program>(cancellationToken, "GetProgramDetailedById?programId={0}", programId);
         }
 
         public IEnumerable<ProgramInfo> GetPrograms(string channelId, DateTime startDateUtc, DateTime endDateUtc,
@@ -96,7 +103,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                     Genres = new List<String>(),
                     Id = p.Id.ToString(CultureInfo.InvariantCulture),
                     IsMovie = false,
-                    IsSeries = !String.IsNullOrEmpty(p.SeriesNum) || !String.IsNullOrEmpty(p.EpisodeNum),
+                    //IsSeries = !String.IsNullOrEmpty(p.SeriesNum) || !String.IsNullOrEmpty(p.EpisodeNum),
+                    IsSeries = true, // Set this to allow series scheduling for all programs
                     Name = p.Title,
                     Overview = p.Description,
                     // OriginalAirDate = p.OriginalAirDate
@@ -131,7 +139,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                     Overview = r.Description,
                     ProgramId = r.ScheduleId.ToString(CultureInfo.InvariantCulture),
                     StartDate = r.StartTime,
-                    ImageUrl = _wssProxy.GetRecordingImageUrl(r.Id.ToString())
+                    ImageUrl = _wssProxy.GetRecordingImageUrl(r.Id.ToString()),
                 };
 
                 if (!String.IsNullOrEmpty(r.Genre))
@@ -294,11 +302,17 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
         public void CreateSeriesSchedule(CancellationToken cancellationToken, SeriesTimerInfo schedule)
         {
+            var programData = GetProgram(cancellationToken, schedule.ProgramId);
+            if (programData == null)
+            {
+                throw ExceptionHelper.CreateArgumentException("schedule.ProgramId", "The program id {0} could not be found", schedule.ProgramId);
+            }
+
             var builder = new StringBuilder("AddScheduleDetailed?");
-            builder.AppendFormat("channelid={0}&", schedule.ChannelId);
-            builder.AppendFormat("title={0}&", schedule.Name);
-            builder.AppendFormat("starttime={0}&", schedule.StartDate.ToUrlDate());
-            builder.AppendFormat("endtime={0}&", schedule.EndDate.ToUrlDate());
+            builder.AppendFormat("channelid={0}&", programData.ChannelId);
+            builder.AppendFormat("title={0}&", programData.Title);
+            builder.AppendFormat("starttime={0}&", programData.StartTime.ToUrlDate());
+            builder.AppendFormat("endtime={0}&", programData.EndTime.ToUrlDate());
             builder.AppendFormat("scheduletype={0}&", (Int32)schedule.ToScheduleType());
 
             if (schedule.IsPrePaddingRequired & schedule.PrePaddingSeconds > 0)
@@ -313,6 +327,9 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
             builder.Remove(builder.Length - 1, 1);
 
+            Plugin.Logger.Info("Creating series scheule with StartTime: {0}, EndTime: {1}, ProgramData from MP: {2}",
+                schedule.StartDate, schedule.EndDate, builder.ToString());
+
             var response = GetFromService<WebBoolResult>(cancellationToken, builder.ToString());
             if (!response.Result)
             {
@@ -322,11 +339,17 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 
         public void CreateSchedule(CancellationToken cancellationToken, TimerInfo timer)
         {
+            var programData = GetProgram(cancellationToken, timer.ProgramId);
+            if (programData == null)
+            {
+                throw ExceptionHelper.CreateArgumentException("timer.ProgramId", "The program id {0} could not be found", timer.ProgramId);
+            }
+
             var builder = new StringBuilder("AddScheduleDetailed?");
-            builder.AppendFormat("channelid={0}&", timer.ChannelId);
-            builder.AppendFormat("title={0}&", timer.Name);
-            builder.AppendFormat("starttime={0}&", timer.StartDate.ToUrlDate());
-            builder.AppendFormat("endtime={0}&", timer.EndDate.ToUrlDate());
+            builder.AppendFormat("channelid={0}&", programData.ChannelId);
+            builder.AppendFormat("title={0}&", programData.Title);
+            builder.AppendFormat("starttime={0}&", programData.StartTime.ToUrlDate());
+            builder.AppendFormat("endtime={0}&", programData.EndTime.ToUrlDate());
             builder.AppendFormat("scheduletype={0}&", (Int32)WebScheduleType.Once);
 
             if (timer.IsPrePaddingRequired & timer.PrePaddingSeconds > 0)
@@ -340,6 +363,9 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             }
 
             builder.Remove(builder.Length - 1, 1);
+
+            Plugin.Logger.Info("Creating scheule with StartTime: {0}, EndTime: {1}, ProgramData from MP: {2}",
+                timer.StartDate, timer.EndDate, builder.ToString());
 
             var response = GetFromService<WebBoolResult>(cancellationToken, builder.ToString());
             if (!response.Result)

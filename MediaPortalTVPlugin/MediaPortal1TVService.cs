@@ -63,7 +63,8 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public async Task<IEnumerable<ChannelInfo>> GetChannelsAsync(CancellationToken cancellationToken)
         {
-            return Plugin.TvProxy.GetChannels(cancellationToken);
+            var channels = Plugin.TvProxy.GetChannels(cancellationToken);
+            return channels;
         }
 
         public Task<SeriesTimerInfo> GetNewTimerDefaultsAsync(CancellationToken cancellationToken, ProgramInfo program = null)
