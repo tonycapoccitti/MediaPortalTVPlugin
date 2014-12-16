@@ -10,6 +10,7 @@ using MediaBrowser.Model.Serialization;
 using MediaBrowser.Plugins.MediaPortal.Configuration;
 using MediaBrowser.Plugins.MediaPortal.Interfaces;
 using MediaBrowser.Plugins.MediaPortal.Services.Exceptions;
+using System.Web;
 
 namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
 {
@@ -96,7 +97,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             }
             catch (AggregateException aggregateException)
             {
-                var exception = aggregateException.Flatten().InnerExceptions.OfType<HttpException>().FirstOrDefault();
+                var exception = aggregateException.Flatten().InnerExceptions.OfType<MediaBrowser.Model.Net.HttpException>().FirstOrDefault();
                 if (exception != null && exception.StatusCode == HttpStatusCode.Unauthorized)
                 {
                     throw new ServiceAuthenticationException("There was a problem authenticating with the MP service", exception);    

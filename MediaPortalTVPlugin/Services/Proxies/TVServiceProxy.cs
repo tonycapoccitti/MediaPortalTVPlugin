@@ -89,8 +89,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 cancellationToken,
                 "GetProgramsDetailedForChannel?channelId={0}&starttime={1}&endtime={2}",
                 channelId,
-                startDateUtc.ToUrlDate(),
-                endDateUtc.ToUrlDate());
+                startDateUtc.ToLocalTime().ToUrlDate(),
+                endDateUtc.ToLocalTime().ToUrlDate());
 
             var programs = response.Select(p =>
             {
@@ -311,8 +311,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             var builder = new StringBuilder("AddScheduleDetailed?");
             builder.AppendFormat("channelid={0}&", programData.ChannelId);
             builder.AppendFormat("title={0}&", programData.Title);
-            builder.AppendFormat("starttime={0}&", programData.StartTime.ToUrlDate());
-            builder.AppendFormat("endtime={0}&", programData.EndTime.ToUrlDate());
+            builder.AppendFormat("starttime={0}&", programData.StartTime.ToLocalTime().ToUrlDate());
+            builder.AppendFormat("endtime={0}&", programData.EndTime.ToLocalTime().ToUrlDate());
             builder.AppendFormat("scheduletype={0}&", (Int32)schedule.ToScheduleType());
 
             if (schedule.IsPrePaddingRequired & schedule.PrePaddingSeconds > 0)
@@ -348,8 +348,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             var builder = new StringBuilder("AddScheduleDetailed?");
             builder.AppendFormat("channelid={0}&", programData.ChannelId);
             builder.AppendFormat("title={0}&", programData.Title);
-            builder.AppendFormat("starttime={0}&", programData.StartTime.ToUrlDate());
-            builder.AppendFormat("endtime={0}&", programData.EndTime.ToUrlDate());
+            builder.AppendFormat("starttime={0}&", programData.StartTime.ToLocalTime().ToUrlDate());
+            builder.AppendFormat("endtime={0}&", programData.EndTime.ToLocalTime().ToUrlDate());
             builder.AppendFormat("scheduletype={0}&", (Int32)WebScheduleType.Once);
 
             if (timer.IsPrePaddingRequired & timer.PrePaddingSeconds > 0)
