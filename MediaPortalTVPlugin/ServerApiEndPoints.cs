@@ -21,6 +21,11 @@ namespace MediaBrowser.Plugins.MediaPortal
     {
     }
 
+    [Route("/MediaPortalPlugin/TestConnection", "GET", Summary = "Tests the connection to MP Extended")]
+    public class GetConnection : IReturn<Boolean>
+    {
+    }
+
     public class ServerApiEndpoints : IRestfulService
     {
         public object Get(GetProfiles request)
@@ -59,6 +64,25 @@ namespace MediaBrowser.Plugins.MediaPortal
             }
 
             return channelGroups;
+        }
+
+        public object Get(GetConnection request)
+        {
+            try
+            {
+                var result = Plugin.TvProxy.GetStatusInfo(new CancellationToken());
+                return true;
+            }
+            catch (ServiceAuthenticationException)
+            {
+                // Do nothing, allow an empty list to be passed out
+            }
+            catch (Exception exception)
+            {
+                Plugin.Logger.ErrorException("There was an issue testing the API connection", exception);
+            }
+
+            return false;
         }
     }
 }

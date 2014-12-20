@@ -9,61 +9,80 @@
         <div data-role="content">
             <div class="content-primary">
                 <form id="mediaPortalConfigurationForm">
-                    <p><span style="color:red;">Please hit save and restart the server after changing any of the settings below:</span></p>
+                    <div data-role="collapsible" data-collapsed="false">
+                        <h2 id="connectionHeader">MP Connection and Authentication</h2>
+                        <div>
+                            <ul data-role="listview" class="ulForm">
+                                <li>
+                                    <label for="txtApiHostName">Host Name:</label>
+                                    <input id="txtApiHostName" name="txtApiHostName" />
+                                    <div class="fieldDescription">
+                                        The host name (address) of the MP Extended Service
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="txtApiPortNumber">Port Number:</label>
+                                    <input id="txtApiPortNumber" name="txtApiPortNumber" />
+                                    <div class="fieldDescription">
+                                        The port number of the MP Extended Service
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="chkRequiresAuthentication">Requires authentication</label>
+                                    <input type="checkbox" id="chkRequiresAuthentication" data-mini="true" />
+                                </li>
+                                <li>
+                                    <label for="txtUserName">UserName:</label>
+                                    <input id="txtUserName" name="txtUserName" />
+                                    <div class="fieldDescription">
+                                        The username specified in MP Extended - Authentication
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="txtPassword">Password:</label>
+                                    <input id="txtPassword" name="txtPassword" />
+                                    <div class="fieldDescription">
+                                        The password specified in MP Extended - Authentication
+                                    </div>
+                                </li>
+                                <li>
+                                    <button id="saveAndTest">Save and Test Connection</button>
+                                    <div id="connectionTestResult"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div data-role="collapsible">
+                        <h2>Other Options</h2>
+                        <div>
+                            <ul data-role="listview" class="ulForm">
+                                <li>
+                                    <label for="selectChannelGroup">Channel Group:</label>
+                                    <select id="selectChannelGroup" data-mini="true"></select>
+                                    <div class="fieldDescription">
+                                        Select the channel group you wish to use in MB3
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="selectProfile">Streaming Profiles:</label>
+                                    <select id="selectProfile" data-mini="true"></select>
+                                    <div class="fieldDescription">
+                                        Select the profile to use for streaming (Direct is recommended)
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="txtThumbnailOffset">Thumbnail Offset (Mins):</label>
+                                    <input id="txtThumbnailOffset" name="txtThumbnailOffset" />
+                                    <div class="fieldDescription">
+                                        The number of minutes into a programme to capture the screen grab for display
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <ul class="ulForm" data-role="listview">
-                        <li>
-                            <label for="txtApiHostName">API Host Name:</label>
-                            <input id="txtApiHostName" name="txtApiHostName" />
-                            <div class="fieldDescription">
-                                The host name (address) of the MP Extended Service
-                            </div>
-                        </li>
-                        <li>
-                            <label for="txtApiPortNumber">API Port Number:</label>
-                            <input id="txtApiPortNumber" name="txtApiPortNumber" />
-                            <div class="fieldDescription">
-                                The port number of the MP Extended Service
-                            </div>
-                        </li>
-                        <li>
-                            <label for="chkRequiresAuthentication">Requires authentication</label>
-                            <input type="checkbox" id="chkRequiresAuthentication" data-mini="true" />
-                        </li>
-                        <li>
-                            <label for="txtUserName">UserName:</label>
-                            <input id="txtUserName" name="txtUserName" />
-                            <div class="fieldDescription">
-                                The username specified in MPExtended - Authentication
-                            </div>
-                        </li>
-                        <li>
-                            <label for="txtPassword">Password:</label>
-                            <input id="txtPassword" name="txtPassword" />
-                            <div class="fieldDescription">
-                                The password specified in MPExtended - Authentication
-                            </div>
-                        </li>
-                        <li>
-                            <label for="selectChannelGroup">Channel Group:</label>
-                            <select id="selectChannelGroup" data-mini="true"></select>
-                            <div class="fieldDescription">
-                                Select the channel group you wish to use in MB3
-                            </div>
-                        </li>
-                        <li>
-                            <label for="selectProfile">Streaming Profiles:</label>
-                            <select id="selectProfile" data-mini="true"></select>
-                            <div class="fieldDescription">
-                                Select the profile to use for streaming (Direct is recommended)
-                            </div>
-                        </li>
-                        <li>
-                            <label for="txtThumbnailOffset">Thumbnail Offset (Mins):</label>
-                            <input id="txtThumbnailOffset" name="txtThumbnailOffset" />
-                            <div class="fieldDescription">
-                                The number of minutes into a programme to capture the screen grab for display
-                            </div>
-                        </li>
                         <li>
                             <button type="submit" data-theme="b">Save</button>
                             <button type="button" onclick="history.back();">Cancel</button>
@@ -75,6 +94,8 @@
         </div>
 
         <script type="text/javascript">
+
+            $("#connectionTestResult").hide();
 
             var MediaPortalConfigurationPage = {
                 pluginUniqueId: "2c6a0219-7621-4b06-8a64-da3f7038b649",
@@ -111,38 +132,59 @@
                     $('#txtPassword', page).val(config.Password);
                     $('#txtThumbnailOffset', page).val(config.PreviewThumbnailOffsetMinutes);
 
-                    // load in the profiles
-                    $.ajax({
-                        type: "GET",
-                        url: ApiClient.getUrl("MediaPortalPlugin/Profiles"),
-                        dataType: "json"
-                    }).done(function (profiles) {
-                        $('#selectProfile', page).html(profiles.map(function (profile) {
-                            var selectedText = profile == config.StreamingProfileName ? " selected" : "";
-                            return '<option value="' + profile + '"' + selectedText + '>' + profile + '</option>';
-                        })).selectmenu('refresh').trigger('change');
-                    });
-
-                    $.ajax({
-                        type: "GET",
-                        url: ApiClient.getUrl("MediaPortalPlugin/ChannelGroups"),
-                        dataType: "json"
-                    }).done(function (groups) {
-                        $('#selectChannelGroup', page).html(groups.map(function (group) {
-                            var selectedText = group.Id == config.DefaultChannelGroup ? " selected" : "";
-                            return '<option value="' + group.Id + '"' + selectedText + '>' + group.GroupName + '</option>';
-                        })).selectmenu('refresh').trigger('change');
-                    });
+                    loadSelects(config, page);
+                    
+                    TestConnection();
 
                     Dashboard.hideLoadingMsg();
                 });
             });
 
+            $("#saveAndTest").click(function () {
+                saveAndTestConfiguration($('.mediaPortalConfigurationPage'));
+            })
+
+            function loadSelects(config, page)
+            {
+                // load in the profiles
+                $.ajax({
+                    type: "GET",
+                    url: ApiClient.getUrl("MediaPortalPlugin/Profiles"),
+                    dataType: "json"
+                }).done(function (profiles) {
+                    $('#selectProfile', page).html(profiles.map(function (profile) {
+                        var selectedText = profile == config.StreamingProfileName ? " selected" : "";
+                        return '<option value="' + profile + '"' + selectedText + '>' + profile + '</option>';
+                    })).selectmenu('refresh').trigger('change');
+                });
+
+                $.ajax({
+                    type: "GET",
+                    url: ApiClient.getUrl("MediaPortalPlugin/ChannelGroups"),
+                    dataType: "json"
+                }).done(function (groups) {
+                    $('#selectChannelGroup', page).html(groups.map(function (group) {
+                        var selectedText = group.Id == config.DefaultChannelGroup ? " selected" : "";
+                        return '<option value="' + group.Id + '"' + selectedText + '>' + group.GroupName + '</option>';
+                    })).selectmenu('refresh').trigger('change');
+                });
+            }
+
             $('.mediaPortalConfigurationPage').on('submit', function (e) {
 
-                Dashboard.showLoadingMsg();
+                saveConfiguration(this)
+                
+                return false; // Disable default form submission
+            });
 
-                var form = this;
+            function saveAndTestConfiguration(form)
+            {
+                saveConfiguration(form, function () { TestConnection(); });
+            }
+
+            function saveConfiguration(form, callback)
+            {
+                Dashboard.showLoadingMsg();
 
                 ApiClient.getPluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId).done(function (config) {
 
@@ -155,12 +197,46 @@
                     config.StreamingProfileName = $('#selectProfile', form).val();
                     config.DefaultChannelGroup = $('#selectChannelGroup', form).val();
 
-                    ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(Dashboard.processPluginConfigurationUpdateResult);
+                    ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(function () {
+
+                        // Reload the selects - this may be called by the 'test' button
+                        loadSelects(config, form);
+
+                        if (callback != null) { callback(); }
+
+                        Dashboard.processPluginConfigurationUpdateResult();
+                    });
+
                 });
 
-                // Disable default form submission
-                return false;
-            });
+                Dashboard.hideLoadingMsg();
+            }
+
+            function TestConnection()
+            {
+                var result = false;
+
+                $.ajax({
+                    type: "GET",
+                    url: ApiClient.getUrl("MediaPortalPlugin/TestConnection"),
+                    dataType: "json",
+                    async: false
+                }).done(function (ajaxResult) {
+                    result = ajaxResult;
+                });
+
+                if (!result) {
+                    $("#connectionTestResult").text("Unable to connect to MP, please review your connection settings before continuing");
+                    $("#connectionTestResult").css({ 'color': 'red' });
+                } else {
+                    $("#connectionTestResult").text("Successfully connected");
+                    $("#connectionTestResult").css({ 'color': 'green' });
+                };
+
+                $("#connectionTestResult").show();
+
+                return result;
+            }
         </script>
     </div>
 </body>
