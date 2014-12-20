@@ -14,12 +14,11 @@ This has been tested with MB3 Server Version 3.0.5451.540 and MP Version 1.8.0. 
 <strong>Installation</strong></p>
 
 <ul>
-	<li>Copy to the Plugins folder of your MB3 install</li>
+	<li>Find the Media Portal Live TV Plugin in the plugin catalog and install</li>
 	<li>Restart MB3, and navigate to settings</li>
-	<li>Go to plugins and to the configuration for Media Portal TV Plugin</li>
-	<li>Configure the plugin, adding any authentication information.</li>
-	<li>Save the configuration, without adding a Streaming Profile</li>
-	<li>Click on Plugings again and re-enter configuration for Media Portal TV Plugin and now you are able to select a streaming profile. However, Direct is recommended as this deffers transcoding to MB3</li>
+	<li>Go to Settings > Plugins and then to the configuration for Media Portal TV Plugin</li>
+	<li>Configure the plugin, adding any authentication information and test the connection by clicking "Save and Test Connection.</li>
+	<li>Once you enter the correct connection settings you will be able to select a Channel Group and a Streaming Profile. For the Streaming Profile Direct is recommended as this deffers transcoding to MB3</li>
 	<li>Click on LiveTV and Refresh Guide Data</li>
 	<li>Switch to the MB3 client UI and you shoud be good to go</li>
 </ul>
@@ -31,7 +30,6 @@ An MB3 Live TV Plugin for Media Portal V1 (1.8.0)
 This version has been tested with MB3 Server Version 3.0.5451.540 and MP Version 1.8.0. You may have to wait for the next release of MB3 before using this plugin.
 
 <ul>
-	<li>Program thumbnails are not yet supported</li>
 	<li>MPExtended v0.5.4 does not allow deleting of recordings - please use v0.6 Beta as described above</li>
 	<li>MPExtended doesn&#39;t currently support reading the genre mappings. I am working on an update to a fork of v0.6 in order to supply these values. Then the program meta data will be populated (IsMovie etc)</li>
 	<li>Picking individual days for a series schedule (if more than one day is specifed and it is not Monday - Friday or Saturday - Sunday, we opt for recording everyday).&nbsp;<em>This is not supported by MP1</em></li>
