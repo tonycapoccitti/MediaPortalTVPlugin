@@ -15,7 +15,6 @@ This has been tested with MB3 Server Version 3.0.5451.540 and MP Version 1.8.0. 
 
 <ul>
 	<li>Find the Media Portal Live TV Plugin in the plugin catalog and install</li>
-	<li>Restart MB3, and navigate to settings</li>
 	<li>Go to Settings > Plugins and then to the configuration for Media Portal TV Plugin</li>
 	<li>Configure the plugin, adding any authentication information and test the connection by clicking "Save and Test Connection.</li>
 	<li>Once you enter the correct connection settings you will be able to select a Channel Group and a Streaming Profile. For the Streaming Profile Direct is recommended as this deffers transcoding to MB3</li>
