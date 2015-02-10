@@ -1,5 +1,6 @@
 ﻿using System;
 using MediaBrowser.Model.Plugins;
+using MediaBrowser.Plugins.MediaPortal.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal.Configuration
 {
@@ -31,6 +32,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
         public String StreamingProfileName { get; set; }
 
         public Int32 DefaultChannelGroup { get; set; }
+
+        public ChannelSorting DefaultChannelSortOrder { get; set; }
 
         public ValidationResult Validate()
         {

@@ -8,6 +8,7 @@ using MediaBrowser.Plugins.MediaPortal.Services.Entities;
 using MediaBrowser.Plugins.MediaPortal.Services.Exceptions;
 
 using ServiceStack;
+using MediaBrowser.Plugins.MediaPortal.Entities;
 
 namespace MediaBrowser.Plugins.MediaPortal
 {
@@ -18,6 +19,11 @@ namespace MediaBrowser.Plugins.MediaPortal
 
     [Route("/MediaPortalPlugin/ChannelGroups", "GET", Summary = "Gets a list of channel groups")]
     public class GetChannelGroups : IReturn<List<ChannelGroup>>
+    {
+    }
+
+    [Route("/MediaPortalPlugin/ChannelSortOptions", "GET", Summary = "Gets a list of channel sort ordering")]
+    public class GetChannelSortOptions : IReturn<List<ChannelSortOption>>
     {
     }
 
@@ -64,6 +70,18 @@ namespace MediaBrowser.Plugins.MediaPortal
             }
 
             return channelGroups;
+        }
+
+        public object Get(GetChannelSortOptions request)
+        {
+            var options = new List<ChannelSortOption>() 
+            {
+                new ChannelSortOption() { Id = ChannelSorting.Default.ToString(), Description = "Default" }, 
+                new ChannelSortOption() { Id = ChannelSorting.ChannelNumber.ToString(), Description = "Channel Number" }, 
+                new ChannelSortOption() { Id = ChannelSorting.ChannelName.ToString(), Description = "Channel Name" }, 
+            };
+
+            return options;
         }
 
         public object Get(GetConnection request)

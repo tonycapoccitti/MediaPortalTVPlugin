@@ -65,6 +65,13 @@
                                     </div>
                                 </li>
                                 <li>
+                                    <label for="selectChannelSortOption">Channel Sort Order:</label>
+                                    <select id="selectChannelSortOption" data-mini="true"></select>
+                                    <div class="fieldDescription">
+                                        Select the order in which the channels should be displayed
+                                    </div>
+                                </li>
+                                <li>
                                     <label for="selectProfile">Streaming Profiles:</label>
                                     <select id="selectProfile" data-mini="true"></select>
                                     <div class="fieldDescription">
@@ -168,6 +175,17 @@
                         return '<option value="' + group.Id + '"' + selectedText + '>' + group.GroupName + '</option>';
                     })).selectmenu('refresh').trigger('change');
                 });
+
+                $.ajax({
+                    type: "GET",
+                    url: ApiClient.getUrl("MediaPortalPlugin/ChannelSortOptions"),
+                    dataType: "json"
+                }).done(function (options) {
+                    $('#selectChannelSortOption', page).html(options.map(function (option) {
+                        var selectedText = option.Id == config.DefaultChannelSortOrder ? " selected" : "";
+                        return '<option value="' + option.Id + '"' + selectedText + '>' + option.Description + '</option>';
+                    })).selectmenu('refresh').trigger('change');
+                });
             }
 
             $('.mediaPortalConfigurationPage').on('submit', function (e) {
@@ -196,6 +214,7 @@
                     config.PreviewThumbnailOffsetMinutes = $('#txtThumbnailOffset', form).val();
                     config.StreamingProfileName = $('#selectProfile', form).val();
                     config.DefaultChannelGroup = $('#selectChannelGroup', form).val();
+                    config.DefaultChannelSortOrder = $('#selectChannelSortOption', form).val();
 
                     ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(function () {
 

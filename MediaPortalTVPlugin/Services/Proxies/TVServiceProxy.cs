@@ -67,7 +67,19 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             }
 
             var response = GetFromService<List<Channel>>(cancellationToken, builder.ToString());
-            return response.Where(c => c.VisibleInGuide).Select(c => new ChannelInfo()
+            IEnumerable<Channel> query = response;
+
+            switch (Configuration.DefaultChannelSortOrder)
+            {
+                case ChannelSorting.ChannelName:
+                    query = query.OrderBy(q => q.Title);
+                    break;
+                case ChannelSorting.ChannelNumber:
+                    query = query.OrderBy(q => q.Id);
+                    break;
+            }
+
+            return query.Where(c => c.VisibleInGuide).Select(c => new ChannelInfo()
             {
                 Id = c.Id.ToString(CultureInfo.InvariantCulture),
                 ChannelType = c.IsTv ? ChannelType.TV : ChannelType.Radio,
