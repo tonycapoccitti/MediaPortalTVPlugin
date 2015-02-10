@@ -1,6 +1,6 @@
 <strong>An MB3 Live TV Plugin for Media Portal V1</strong>
 
-This has been tested with MB3 Server Version 3.0.5451.540 and MP Version 1.8.0. You may have to wait for the next release of MB3 before using this plugin.
+In addition to MB3, this plugin requires a fully configured Media Portal installation - for help with this please consult <a href="http://www.pinventor.co.uk/tutorials/mediaportal-home-cinema-pc-setup/">this excellent guide</a>.
 
 <p>This has a prerequisite of installing MPExtended on the box that hosts MediaPortal. Both v0.5.4 and v0.6 are supported - however running v0.5.4 does not allow recordings to be deleted. However v0.6 does, so download and install from here:</p>
 
@@ -37,7 +37,7 @@ This version has been tested with MB3 Server Version 3.0.5451.540 and MP Version
 
 <p><strong>Feedback</strong><br />
 &nbsp;<br />
-I would appreciate any feedback by posting to this topic. Please raise any issues here:&nbsp;<a href="https://github.com/ChubbyArse/MediaPortalTVPlugin/issues">https://github.com/ChubbyArse/MediaPortalTVPlugin/issues</a>&nbsp;if you don&#39;t have a GitHub login, post against this topic and I&#39;ll add them to the issues list.<br />
+I would appreciate any feedback by raising any issues here:&nbsp;<a href="https://github.com/ChubbyArse/MediaPortalTVPlugin/issues">https://github.com/ChubbyArse/MediaPortalTVPlugin/issues</a>&nbsp;if you don&#39;t have a GitHub login, please leave a message on the MB3 forums and I&#39;ll add them to the issues list.<br />
 <br />
 TV Guide<br />
 &nbsp;<br />
