@@ -104,6 +104,9 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 startDateUtc.ToLocalTime().ToUrlDate(),
                 endDateUtc.ToLocalTime().ToUrlDate());
 
+            // Create this once per channel - if created at the class level, then changes to configuration would never be caught
+            var genreMapper = new GenreMapper(Plugin.Instance.Configuration);
+
             var programs = response.Select(p =>
             {
                 var program = new ProgramInfo()
@@ -114,9 +117,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                     EpisodeTitle = p.EpisodeName,
                     Genres = new List<String>(),
                     Id = p.Id.ToString(CultureInfo.InvariantCulture),
-                    IsMovie = false,
                     //IsSeries = !String.IsNullOrEmpty(p.SeriesNum) || !String.IsNullOrEmpty(p.EpisodeNum),
-                    IsSeries = true, // Set this to allow series scheduling for all programs
+                    IsSeries = true, // Set this to allow series scheduling for all programs,
                     Name = p.Title,
                     Overview = p.Description,
                     // OriginalAirDate = p.OriginalAirDate
@@ -125,7 +127,8 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
                 if (!String.IsNullOrEmpty(p.Genre))
                 {
                     program.Genres.Add(p.Genre);
-                    program.IsMovie = p.Genre == "Film" || p.Genre == "Movie"; // HACK: Replace with a lookup in the MPGenres
+                    // Call Genre Mapper
+                    genreMapper.PopulateProgramGenres(program);
                 }
 
                 return program;

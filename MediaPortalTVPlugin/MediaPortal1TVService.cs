@@ -86,7 +86,7 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task<ImageStream> GetProgramImageAsync(string programId, string channelId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<IEnumerable<RecordingInfo>> GetRecordingsAsync(CancellationToken cancellationToken)
@@ -112,7 +112,7 @@ namespace MediaBrowser.Plugins.MediaPortal
                 result = new LiveTvServiceStatusInfo()
                 {
                     HasUpdateAvailable = false,
-                    Status = Model.LiveTv.LiveTvServiceStatus.Unavailable,
+                    Status = LiveTvServiceStatus.Unavailable,
                     StatusMessage = configurationValidationResult.Summary,
                     Tuners = new List<LiveTvTunerInfo>(),
                     Version = version
@@ -236,12 +236,12 @@ namespace MediaBrowser.Plugins.MediaPortal
 
         public Task<ImageStream> GetChannelImageAsync(string channelId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task<ImageStream> GetRecordingImageAsync(string recordingId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task UpdateTimerAsync(TimerInfo info, CancellationToken cancellationToken)

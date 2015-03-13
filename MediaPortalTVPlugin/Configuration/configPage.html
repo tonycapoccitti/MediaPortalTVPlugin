@@ -9,7 +9,7 @@
         <div data-role="content">
             <div class="content-primary">
                 <form id="mediaPortalConfigurationForm">
-                    <div data-role="collapsible" data-collapsed="false">
+                    <div id="connectionSection" data-role="collapsible" data-collapsed="false">
                         <h2 id="connectionHeader">MP Connection and Authentication</h2>
                         <div>
                             <ul data-role="listview" class="ulForm">
@@ -48,6 +48,29 @@
                                 <li>
                                     <button id="saveAndTest">Save and Test Connection</button>
                                     <div id="connectionTestResult"></div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="mappingSection" data-role="collapsible">
+                        <h2>Genre Mapping</h2>
+                        <div>List against each MB genre below, the MP program genres that belong to it</div>
+                        <div>
+                            <ul data-role="listview" class="ulForm">
+                                <li>
+                                    <label for="txtMovieGenre">Movie Genres</label>
+                                    <input id="txtMovieGenre" name="txtMovieGenre" />
+                                    <div class="fieldDescription">
+                                        Example: Movie,Film,TvMovie
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="txtSportsGenre">Sports Genres</label>
+                                    <input id="txtSportsGenre" name="txtSportsGenre" />
+                                    <div class="fieldDescription">
+                                        Example: Sport,Football
+                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -140,16 +163,20 @@
                     $('#txtThumbnailOffset', page).val(config.PreviewThumbnailOffsetMinutes);
 
                     loadSelects(config, page);
+                    loadGenres(config, page);
                     
-                    TestConnection();
+                    var isValidConnection = TestConnection();
+
+                    // Collapse the connection section based on it being valid or not
+                    $('#connectionSection').data('collapsed', isValidConnection);
 
                     Dashboard.hideLoadingMsg();
                 });
             });
 
-            $("#saveAndTest").click(function () {
+            $("#saveAndTest").click(function() {
                 saveAndTestConfiguration($('.mediaPortalConfigurationPage'));
-            })
+            });
 
             function loadSelects(config, page)
             {
@@ -188,9 +215,23 @@
                 });
             }
 
+            function loadGenres(config, page) {
+
+                if (config != null && config.GenreMappings) {
+
+                    if (config.GenreMappings["GENREMOVIE"] != null) {
+                        $('#txtMovieGenre', page).val(config.GenreMappings["GENREMOVIE"].join(','));
+                    }
+
+                    if (config.GenreMappings["GENRESPORT"] != null) {
+                        $('#txtSportsGenre', page).val(config.GenreMappings["GENRESPORT"].join(','));
+                    }
+                }
+            }
+
             $('.mediaPortalConfigurationPage').on('submit', function (e) {
 
-                saveConfiguration(this)
+                saveConfiguration(this);
                 
                 return false; // Disable default form submission
             });
@@ -215,6 +256,12 @@
                     config.StreamingProfileName = $('#selectProfile', form).val();
                     config.DefaultChannelGroup = $('#selectChannelGroup', form).val();
                     config.DefaultChannelSortOrder = $('#selectChannelSortOption', form).val();
+
+                    // Copy over the genre mapping fields
+                    config.GenreMappings = {
+                        "GENREMOVIE": $('#txtMovieGenre', form).val().split(","),
+                        "GENRESPORT": $('#txtSportsGenre', form).val().split(","),
+                    }
 
                     ApiClient.updatePluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId, config).done(function () {
 

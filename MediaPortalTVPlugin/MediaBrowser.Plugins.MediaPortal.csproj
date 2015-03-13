@@ -75,6 +75,7 @@
     <Compile Include="Entities\ChannelSortOption.cs" />
     <Compile Include="Entities\ScheduleDefaults.cs" />
     <Compile Include="Helpers\ExceptionHelper.cs" />
+    <Compile Include="Helpers\GenreMapper.cs" />
     <Compile Include="Services\Entities\ActiveTunerCard.cs" />
     <Compile Include="Services\Entities\TunerCard.cs" />
     <Compile Include="Services\Entities\User.cs" />
