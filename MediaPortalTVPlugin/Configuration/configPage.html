@@ -4,7 +4,7 @@
     <title>MediaPortal</title>
 </head>
 <body>
-    <div data-role="page" class="page type-interior pluginConfigurationPage mediaPortalConfigurationPage">
+    <div id="mediaPortalConfigurationPage" data-role="page" class="page type-interior pluginConfigurationPage mediaPortalConfigurationPage">
 
         <div data-role="content">
             <div class="content-primary">
@@ -164,7 +164,7 @@
 
                     loadSelects(config, page);
                     loadGenres(config, page);
-                    
+
                     var isValidConnection = TestConnection();
 
                     // Collapse the connection section based on it being valid or not
@@ -174,12 +174,11 @@
                 });
             });
 
-            $("#saveAndTest").click(function() {
+            $("#saveAndTest").click(function () {
                 saveAndTestConfiguration($('.mediaPortalConfigurationPage'));
             });
 
-            function loadSelects(config, page)
-            {
+            function loadSelects(config, page) {
                 // load in the profiles
                 $.ajax({
                     type: "GET",
@@ -232,17 +231,15 @@
             $('.mediaPortalConfigurationPage').on('submit', function (e) {
 
                 saveConfiguration(this);
-                
+
                 return false; // Disable default form submission
             });
 
-            function saveAndTestConfiguration(form)
-            {
+            function saveAndTestConfiguration(form) {
                 saveConfiguration(form, function () { TestConnection(); });
             }
 
-            function saveConfiguration(form, callback)
-            {
+            function saveConfiguration(form, callback) {
                 Dashboard.showLoadingMsg();
 
                 ApiClient.getPluginConfiguration(MediaPortalConfigurationPage.pluginUniqueId).done(function (config) {
@@ -278,8 +275,7 @@
                 Dashboard.hideLoadingMsg();
             }
 
-            function TestConnection()
-            {
+            function TestConnection() {
                 var result = false;
 
                 $.ajax({
@@ -305,5 +301,6 @@
             }
         </script>
     </div>
+
 </body>
 </html>
