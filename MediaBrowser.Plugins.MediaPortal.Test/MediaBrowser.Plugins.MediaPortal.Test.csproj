@@ -42,6 +42,7 @@
       <HintPath>..\packages\MediaBrowser.Common.3.0.566\lib\net45\MediaBrowser.Model.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">

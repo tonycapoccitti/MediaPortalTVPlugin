@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using MediaBrowser.Controller.LiveTv;
 using MediaBrowser.Plugins.MediaPortal.Configuration;
+using MediaBrowser.Plugins.MediaPortal.Entities;
 using MediaBrowser.Plugins.MediaPortal.Helpers;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,7 +18,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Test
         {
             var pluginConfiguration = new PluginConfiguration()
             {
-                GenreMappings = new Dictionary<String, List<String>>()
+                GenreMappings = new SerializableDictionary<String, List<String>>()
                 {
                     { GenreMapper.GENRE_MOVIE, new List<string>() { "Movie", "Film" } },
                     { GenreMapper.GENRE_SPORT, new List<string>() { "Sport", "Football" } },

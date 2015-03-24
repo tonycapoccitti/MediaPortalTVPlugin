@@ -5,6 +5,8 @@ using System.Threading;
 using System.Web;
 using MediaBrowser.Common.Net;
 using MediaBrowser.Controller.Channels;
+using MediaBrowser.Model.Dto;
+using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.MediaInfo;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Plugins.MediaPortal.Services.Entities;
@@ -174,7 +176,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             var streamingDetails = new StreamingDetails()
             {
                 StreamIdentifier = identifier,
-                StreamInfo = new ChannelMediaInfo()
+                SourceInfo = new MediaSourceInfo()
                 {
                     Path = url,
                     Protocol = MediaProtocol.Http,
@@ -186,23 +188,23 @@ namespace MediaBrowser.Plugins.MediaPortal.Services.Proxies
             var mediaInfo = GetMediaInfoFromStream(cancellationToken, webMediaType, mediaInfoId);
             if (mediaInfo != null)
             {
-                streamingDetails.StreamInfo.Container = mediaInfo.Container;
-                streamingDetails.StreamInfo.RunTimeTicks = TimeSpan.FromSeconds(mediaInfo.Duration).Ticks;
-                streamingDetails.StreamInfo.AudioChannels = mediaInfo.AudioStreams.Count;
+                streamingDetails.SourceInfo.Container = mediaInfo.Container;
+                streamingDetails.SourceInfo.RunTimeTicks = TimeSpan.FromSeconds(mediaInfo.Duration).Ticks;
+                
+                //streamingDetails.SourceInfo.AudioChannels = mediaInfo.AudioStreams.Count;
+                //var defaultAudioStream = mediaInfo.AudioStreams.FirstOrDefault();
+                //if (defaultAudioStream != null)
+                //{
+                //    streamingDetails.SourceInfo.AudioCodec = defaultAudioStream.Codec;
+                //}
 
-                var defaultAudioStream = mediaInfo.AudioStreams.FirstOrDefault();
-                if (defaultAudioStream != null)
-                {
-                    streamingDetails.StreamInfo.AudioCodec = defaultAudioStream.Codec;
-                }
-
-                var defaultVideoStream = mediaInfo.VideoStreams.FirstOrDefault();
-                if (defaultVideoStream != null)
-                {
-                    streamingDetails.StreamInfo.VideoCodec = defaultVideoStream.Codec;
-                    streamingDetails.StreamInfo.Height = defaultVideoStream.Height;
-                    streamingDetails.StreamInfo.Width = defaultVideoStream.Width;
-                }
+                //var defaultVideoStream = mediaInfo.VideoStreams.FirstOrDefault();
+                //if (defaultVideoStream != null)
+                //{
+                //    streamingDetails.SourceInfo.VideoCodec = defaultVideoStream.Codec;
+                //    streamingDetails.SourceInfo.Height = defaultVideoStream.Height;
+                //    streamingDetails.SourceInfo.Width = defaultVideoStream.Width;
+                //}
             }
 
             return streamingDetails;

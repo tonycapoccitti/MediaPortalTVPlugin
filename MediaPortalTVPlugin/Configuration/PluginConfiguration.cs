@@ -22,7 +22,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
             PreviewThumbnailOffsetMinutes = 5;
 
             // Initialise this, so we can guarantee that we al
-            GenreMappings = new Dictionary<string, List<string>>();
+            GenreMappings = new SerializableDictionary<string, List<string>>();
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace MediaBrowser.Plugins.MediaPortal.Configuration
         /// <summary>
         /// The genre mappings, to map localised MP genres, to MB genres.
         /// </summary>
-        public Dictionary<String, List<String>> GenreMappings { get; set; }
+        public SerializableDictionary<String, List<String>> GenreMappings { get; set; }
 
         /// <summary>
         /// The default ordering of channels
